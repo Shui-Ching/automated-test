@@ -1,18 +1,21 @@
 /**
- * 頁面資料的唯一存取入口。掛在 localStorage 的 `admin-pages` key，值為頁面物件陣列。
- *
- * 本階段只實作頁面列表（查詢／排序）與硬刪除，因為目前只有 page-list.html 這一個消費者。
- * 新增／編輯頁面所需的寫入、唯一值檢核、圖片存取（IndexedDB）待 Phase 2 後續 session
- * 實作對應頁面時再加進來，避免在還沒有呼叫端的情況下先寫一批用不到的函式。
+ * 頁面資料的唯一存取入口。掛在 localStorage 的 `admin-pages` key，值為頁面物件陣列；
+ * 圖文區塊與內容編輯器內嵌圖片另走 IndexedDB（見下方 `saveImageBlob` 一節），
+ * 原因是 base64 塞進 localStorage 會撐爆容量（見 docs/project-plan.md 風險 R-8）。
  *
  * `admin-pages` 這把 key 與頁面物件的欄位名稱是測試契約的一部分（見 tests/contract/seed.md），
  * PM 端的測試直接寫入這把 key 來填種資料，改名或改欄位形狀等同改 API。
+ * `blocks[].image` 存的是 IndexedDB 的 key（字串），不是圖片本身。
  *
  * ES module（而非 session-store.js 那種傳統 script）：這支檔案不需要在首次繪製前執行，
  * 只服務 page-list.js 這類功能邏輯，沿用 login.js 已經立下的慣例。
  */
 
 const STORAGE_KEY = 'admin-pages';
+
+function generateId(prefix) {
+    return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
 
 function readAll() {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -67,4 +70,82 @@ export function deletePage(id) {
     const next = pages.filter((page) => page.id !== id);
     writeAll(next);
     return next.length !== pages.length;
+}
+
+/** 頁面名稱是否已存在，`excludeId` 供編輯頁排除本筆使用（PAG-002/003 共用的唯一值檢核）。 */
+export function pageNameExists(name, excludeId = null) {
+    return readAll().some((page) => page.name === name && page.id !== excludeId);
+}
+
+/** 新增一筆頁面資料。呼叫前應已完成欄位驗證與唯一值檢核，本函式不重複檢查。 */
+export function createPage({ name, createdDate, blocks, content, note }) {
+    const pages = readAll();
+    const page = {
+        id: generateId('p'),
+        name,
+        createdDate,
+        blocks,
+        content: content || '',
+        note: note || '',
+    };
+    pages.push(page);
+    writeAll(pages);
+    return page;
+}
+
+// --- 圖片 Blob 儲存（IndexedDB）---
+// 區塊圖片與內容編輯器內嵌圖片都走這裡：存 Blob 本身而非 base64，避免撐爆 localStorage（風險 R-8）。
+
+const IMAGE_DB_NAME = 'admin-page-images';
+const IMAGE_DB_VERSION = 1;
+const IMAGE_STORE_NAME = 'images';
+
+function openImageDb() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(IMAGE_DB_NAME, IMAGE_DB_VERSION);
+        request.onupgradeneeded = () => {
+            request.result.createObjectStore(IMAGE_STORE_NAME);
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+/** 儲存圖片 Blob，回傳供 `blocks[].image` 或內容編輯器內嵌圖片參照的 id。 */
+export async function saveImageBlob(blob) {
+    const db = await openImageDb();
+    const id = generateId('img');
+    await new Promise((resolve, reject) => {
+        const tx = db.transaction(IMAGE_STORE_NAME, 'readwrite');
+        tx.objectStore(IMAGE_STORE_NAME).put(blob, id);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+    });
+    db.close();
+    return id;
+}
+
+/** 依 id 取回圖片 Blob，找不到回傳 null。 */
+export async function getImageBlob(id) {
+    const db = await openImageDb();
+    const blob = await new Promise((resolve, reject) => {
+        const tx = db.transaction(IMAGE_STORE_NAME, 'readonly');
+        const request = tx.objectStore(IMAGE_STORE_NAME).get(id);
+        request.onsuccess = () => resolve(request.result || null);
+        request.onerror = () => reject(request.error);
+    });
+    db.close();
+    return blob;
+}
+
+/** 移除圖片 Blob，用於使用者在畫面上清除已選圖片或移除整組圖文區塊時釋放儲存空間。 */
+export async function deleteImageBlob(id) {
+    const db = await openImageDb();
+    await new Promise((resolve, reject) => {
+        const tx = db.transaction(IMAGE_STORE_NAME, 'readwrite');
+        tx.objectStore(IMAGE_STORE_NAME).delete(id);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+    });
+    db.close();
 }
