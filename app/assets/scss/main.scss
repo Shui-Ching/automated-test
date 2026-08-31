@@ -3,4 +3,8 @@
 @use 'reset';
 @use 'base/base-form';
 @use 'components/button';
+@use 'components/table';
+@use 'components/dialog';
+@use 'components/toast';
 @use 'pages/login';
+@use 'pages/page-list';

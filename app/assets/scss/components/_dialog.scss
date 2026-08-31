@@ -1,0 +1,32 @@
+@use '../variables' as *;
+
+// 用原生 <dialog>：showModal() 內建 focus trap 與 Esc 關閉，不必自己刻鍵盤操作。
+.dialog {
+    width: 100%;
+    max-width: 400px;
+    padding: $spacing-xl;
+    border: none;
+    border-radius: $radius-card;
+    box-shadow: 0 8px 24px rgba(31, 36, 41, 0.16);
+
+    &::backdrop {
+        background-color: rgba(31, 36, 41, 0.48);
+    }
+}
+
+.dialog-title {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+}
+
+.dialog-body {
+    margin-top: $spacing-sm;
+    color: $gray-700;
+}
+
+.dialog-actions {
+    display: flex;
+    gap: $spacing-sm;
+    justify-content: flex-end;
+    margin-top: $spacing-xl;
+}

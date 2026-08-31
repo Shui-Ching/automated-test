@@ -1,0 +1,46 @@
+@use '../variables' as *;
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: $font-size-sm;
+
+    th,
+    td {
+        padding: $spacing-sm $spacing-md;
+        text-align: left;
+        border-bottom: 1px solid $gray-100;
+    }
+
+    th {
+        font-size: $font-size-xs;
+        font-weight: $font-weight-medium;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: $gray-700;
+        background-color: $gray-50;
+    }
+
+    // 序號、建立日期欄位用等寬數字字體，直向瀏覽時數字才會對齊
+    td:first-child,
+    td:nth-child(3) {
+        font-family: $font-family-numeric;
+    }
+
+    tbody tr:hover {
+        background-color: $gray-50;
+    }
+}
+
+.page-list-empty {
+    padding: $spacing-2xl;
+    text-align: center;
+    color: $gray-500;
+}
+
+.page-list-row-actions {
+    display: flex;
+    gap: $spacing-sm;
+    justify-content: flex-end;
+    white-space: nowrap;
+}

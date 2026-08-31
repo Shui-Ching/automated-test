@@ -1,0 +1,25 @@
+@use '../variables' as *;
+
+// 固定在畫面下方置中的提示，顯示成功訊息（刪除成功、已登出）。
+// 用 opacity + transform 而非 display，是為了讓 is-visible 切換時有淡入效果；
+// prefers-reduced-motion 已在 _reset.scss 全域關閉 transition-duration，這裡不用再判斷一次。
+.toast {
+    position: fixed;
+    bottom: $spacing-xl;
+    left: 50%;
+    z-index: 100;
+    padding: $spacing-sm $spacing-lg;
+    border-radius: $radius-tag;
+    background-color: $gray-900;
+    color: $gray-0;
+    font-size: $font-size-sm;
+    opacity: 0;
+    transform: translate(-50%, $spacing-sm);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+
+    &.is-visible {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
