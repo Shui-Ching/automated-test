@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import contract from './testid-map.json';
+import { seedAdmin } from '../support/seed';
 
 /**
  * 契約檢查關卡：跑在所有功能測試之前。
@@ -13,6 +14,9 @@ import contract from './testid-map.json';
  */
 for (const page of contract.pages) {
     test(`契約檢查：${page.spec} 的 data-testid 全部存在`, async ({ page: browserPage }) => {
+        // 無資料 + 已登入是所有後台頁面的最小共同起始狀態：沒有登入狀態會被 auth-guard 導回登入頁，
+        // 登入頁本身多做這步不影響結果（login.js 進頁就會清掉殘留的登入狀態）。
+        await seedAdmin(browserPage, []);
         await browserPage.goto(page.url);
 
         // 先確認頁面本身真的載入了。少了這一步，頁面 404 時下面每一條 expect 都會失敗，

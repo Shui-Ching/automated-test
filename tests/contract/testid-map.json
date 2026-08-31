@@ -14,6 +14,40 @@
         "login-account-error": "帳號欄位驗證訊息。無錯誤時 hidden",
         "login-password-error": "密碼欄位驗證訊息。無錯誤時 hidden"
       }
+    },
+    {
+      "id": "page-list",
+      "url": "/admin/page-list.html",
+      "spec": "[PAG-ADM-FN-001] 後台 頁面列表",
+      "note": "本頁需要有效登入狀態（auth-guard.js 阻擋），契約檢查與功能測試都要先用 tests/support/seed.ts 的 seedAdmin() 建立 session，見 tests/contract/seed.md。列表在無資料時會落入查無資料狀態，這也是契約檢查的實際載入狀態，`page-list-empty` 因此保證存在。",
+      "testids": {
+        "page-list-logout": "登出按鈕",
+        "page-list-search-name": "頁面名稱搜尋輸入框",
+        "page-list-search-date-from": "建立日期區間起始",
+        "page-list-search-date-to": "建立日期區間結束",
+        "page-list-search-date-error": "日期區間錯誤訊息。無錯誤時 hidden",
+        "page-list-search-clear": "清除按鈕",
+        "page-list-search-submit": "查詢按鈕",
+        "page-list-create": "新增按鈕，連到 page-create.html（尚未實作）",
+        "page-list-toast": "成功提示 Toast。無訊息時 hidden",
+        "page-list-body": "表格 tbody，資料列與查無資料列都渲染在這底下",
+        "page-list-empty": "查無資料列（渲染於 tbody 內的單一 td，非獨立元素）",
+        "page-list-total": "篩選後總筆數",
+        "page-list-page-size": "每頁筆數選擇（10／20／50）",
+        "page-list-page-prev": "上一頁按鈕",
+        "page-list-page-next": "下一頁按鈕",
+        "page-list-page-input": "跳頁輸入框",
+        "page-list-page-total": "總頁數顯示",
+        "page-list-delete-dialog": "刪除確認彈窗（<dialog>，未開啟時仍存在於 DOM）",
+        "page-list-delete-cancel": "彈窗取消按鈕",
+        "page-list-delete-confirm": "彈窗確認按鈕"
+      },
+      "row_testids": {
+        "note": "以下 testid 只在有資料列渲染時才存在，故意不放進上面的靜態契約（契約檢查關卡對它們斷言必失敗）。用 data-page-name 鎖定特定列，例如 page.getByTestId('page-row').filter({ has: page.locator('[data-page-name=\"關於我們\"]') })。",
+        "page-row": "資料列本身，帶 data-page-name 屬性",
+        "page-list-row-edit": "列內編輯連結，連到 page-edit.html?id=...（尚未實作）",
+        "page-list-row-delete": "列內刪除按鈕，帶 data-id 屬性"
+      }
     }
   ]
 }

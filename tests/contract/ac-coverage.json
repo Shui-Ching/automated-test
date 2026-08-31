@@ -11,12 +11,12 @@
     { "id": 3, "feature": "AUT-ADM-FN-001", "ac_id": "AC-B1", "case": "密碼未填", "unit": "前端", "test_file": "tests/specs/aut-adm-fn-001.spec.ts", "test_title": "[AUT-ADM-FN-001] AC-B1 欄位驗證：密碼未填", "manual_result": null },
     { "id": 4, "feature": "AUT-ADM-FN-001", "ac_id": "AC-B2", "case": "帳號或密碼錯誤", "unit": "前端", "test_file": "tests/specs/aut-adm-fn-001.spec.ts", "test_title": "[AUT-ADM-FN-001] AC-B2 帳號或密碼錯誤", "manual_result": null },
 
-    { "id": 5, "feature": "PAG-ADM-FN-001", "ac_id": "AC-P1", "case": "依頁面名稱關鍵字篩選", "unit": "前端", "test_file": null, "test_title": null, "manual_result": null },
-    { "id": 6, "feature": "PAG-ADM-FN-001", "ac_id": "AC-P2", "case": "依建立日期區間篩選", "unit": "前端", "test_file": null, "test_title": null, "manual_result": null },
-    { "id": 7, "feature": "PAG-ADM-FN-001", "ac_id": "AC-P3", "case": "成功刪除頁面（硬刪除）", "unit": "後端", "test_file": null, "test_title": null, "manual_result": null },
-    { "id": 8, "feature": "PAG-ADM-FN-001", "ac_id": "AC-P4", "case": "取消刪除", "unit": "前端", "test_file": null, "test_title": null, "manual_result": null },
-    { "id": 9, "feature": "PAG-ADM-FN-001", "ac_id": "AC-P5", "case": "篩選結果查無資料", "unit": "前端", "test_file": null, "test_title": null, "manual_result": null },
-    { "id": 10, "feature": "PAG-ADM-FN-001", "ac_id": "AC-B1", "case": "建立日期起始晚於結束", "unit": "前端", "test_file": null, "test_title": null, "manual_result": null },
+    { "id": 5, "feature": "PAG-ADM-FN-001", "ac_id": "AC-P1", "case": "依頁面名稱關鍵字篩選", "unit": "前端", "test_file": "tests/specs/pag-adm-fn-001.spec.ts", "test_title": "[PAG-ADM-FN-001] AC-P1 依頁面名稱關鍵字篩選", "manual_result": null },
+    { "id": 6, "feature": "PAG-ADM-FN-001", "ac_id": "AC-P2", "case": "依建立日期區間篩選", "unit": "前端", "test_file": "tests/specs/pag-adm-fn-001.spec.ts", "test_title": "[PAG-ADM-FN-001] AC-P2 依建立日期區間篩選", "manual_result": null },
+    { "id": 7, "feature": "PAG-ADM-FN-001", "ac_id": "AC-P3", "case": "成功刪除頁面（硬刪除）", "unit": "後端", "test_file": "tests/specs/pag-adm-fn-001.spec.ts", "test_title": "[PAG-ADM-FN-001] AC-P3 成功刪除頁面（硬刪除）", "manual_result": null },
+    { "id": 8, "feature": "PAG-ADM-FN-001", "ac_id": "AC-P4", "case": "取消刪除", "unit": "前端", "test_file": "tests/specs/pag-adm-fn-001.spec.ts", "test_title": "[PAG-ADM-FN-001] AC-P4 取消刪除", "manual_result": null },
+    { "id": 9, "feature": "PAG-ADM-FN-001", "ac_id": "AC-P5", "case": "篩選結果查無資料", "unit": "前端", "test_file": "tests/specs/pag-adm-fn-001.spec.ts", "test_title": "[PAG-ADM-FN-001] AC-P5 篩選結果查無資料", "manual_result": null },
+    { "id": 10, "feature": "PAG-ADM-FN-001", "ac_id": "AC-B1", "case": "建立日期起始晚於結束", "unit": "前端", "test_file": "tests/specs/pag-adm-fn-001.spec.ts", "test_title": "[PAG-ADM-FN-001] AC-B1 建立日期起始晚於結束", "manual_result": null },
 
     { "id": 11, "feature": "PAG-ADM-FN-002", "ac_id": "AC-P1", "case": "以單組圖文區塊成功新增頁面", "unit": "後端", "test_file": null, "test_title": null, "manual_result": null },
     { "id": 12, "feature": "PAG-ADM-FN-002", "ac_id": "AC-P2", "case": "以三組圖文區塊成功新增頁面", "unit": "後端", "test_file": null, "test_title": null, "manual_result": null },
