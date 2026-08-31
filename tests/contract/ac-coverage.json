@@ -3,7 +3,7 @@
   "unit_definitions": {
     "前端": "欄位驗證、錯誤文案、按鈕停用、導頁、Toast、分頁行為",
     "後端": "資料寫入、唯一值、硬刪除、逾時、資料不存在（本階段等同模擬資料層 data-store.js）",
-    "設計＋前端": "版型、排列方向、置左置右、並列、顯示／隱藏樣式。PM 補上 UI 截圖後才能改判為單純「設計」"
+    "需人工設計審查": "版型、排列方向、置左置右、並列、顯示／隱藏樣式。沒有 UI 截圖無法斷定是設計或前端出錯（見 pm-feedback.md D-3），PM 補上截圖後才能改判為「設計＋前端」"
   },
   "rows": [
     { "id": 1, "feature": "AUT-ADM-FN-001", "ac_id": "AC-P1", "case": "成功登入後台", "unit": "前端", "test_file": "tests/specs/aut-adm-fn-001.spec.ts", "test_title": "[AUT-ADM-FN-001] AC-P1 成功登入後台", "manual_result": null },
@@ -34,7 +34,7 @@
     { "id": 24, "feature": "PAG-ADM-FN-002", "ac_id": "AC-B1", "case": "圖說文字長度不可超過 100 字", "unit": "前端", "test_file": "tests/specs/pag-adm-fn-002.spec.ts", "test_title": "[PAG-ADM-FN-002] AC-B1 圖說文字長度不可超過 100 字", "manual_result": null },
     { "id": 25, "feature": "PAG-ADM-FN-002", "ac_id": "AC-B1", "case": "補充說明長度不可超過 500 字", "unit": "前端", "test_file": "tests/specs/pag-adm-fn-002.spec.ts", "test_title": "[PAG-ADM-FN-002] AC-B1 補充說明長度不可超過 500 字", "manual_result": null },
     { "id": 26, "feature": "PAG-ADM-FN-002", "ac_id": "AC-B2", "case": "圖文區塊已達上限", "unit": "前端", "test_file": "tests/specs/pag-adm-fn-002.spec.ts", "test_title": "[PAG-ADM-FN-002] AC-B2 圖文區塊已達上限", "manual_result": null },
-    { "id": 27, "feature": "PAG-ADM-FN-002", "ac_id": "AC-B3", "case": "圖文區塊不可移除至零組", "unit": "前端", "test_file": "tests/specs/pag-adm-fn-002.spec.ts", "test_title": "[PAG-ADM-FN-002] AC-B3 圖文區塊不可移除至零組", "manual_result": null },
+    { "id": 27, "feature": "PAG-ADM-FN-002", "ac_id": "AC-B3", "case": "圖文區塊不可移除至零組", "unit": "需人工設計審查", "test_file": "tests/specs/pag-adm-fn-002.spec.ts", "test_title": "[PAG-ADM-FN-002] AC-B3 圖文區塊不可移除至零組", "manual_result": null, "note": "2.9 依 docs/project-plan.md 第 186 行規則表重新分類：Then 為「不得顯示」，屬顯示／隱藏樣式，原登記為「前端」不符規則表，已改判為「需人工設計審查」。此類即 pm-feedback.md D-3 所述「沒有 UI 截圖無法斷定是設計或前端出錯」的情形，2.4 曾在此踩過真實的 CSS [hidden] 被覆蓋的 bug，屬性質相符的先例" },
 
     { "id": 28, "feature": "PAG-ADM-FN-003", "ac_id": "AC-P1", "case": "正確帶入既有資料與全部圖文區塊", "unit": "前端", "test_file": "tests/specs/pag-adm-fn-003.spec.ts", "test_title": "[PAG-ADM-FN-003] AC-P1 正確帶入既有資料與全部圖文區塊", "manual_result": null },
     { "id": 29, "feature": "PAG-ADM-FN-003", "ac_id": "AC-P2", "case": "修改指定組別之版型", "unit": "後端", "test_file": "tests/specs/pag-adm-fn-003.spec.ts", "test_title": "[PAG-ADM-FN-003] AC-P2 修改指定組別之版型", "manual_result": null },
@@ -60,16 +60,16 @@
     { "id": 48, "feature": "PUB-WEB-FN-001", "ac_id": "AC-P3", "case": "無資料時顯示查無資料", "unit": "前端", "test_file": null, "test_title": null, "manual_result": null },
     { "id": 49, "feature": "PUB-WEB-FN-001", "ac_id": "AC-B1", "case": "已刪除頁面不得出現於前台", "unit": "後端", "test_file": null, "test_title": null, "manual_result": null },
 
-    { "id": 50, "feature": "PUB-WEB-FN-002", "ac_id": "AC-P1", "case": "左圖右文版型正確呈現", "unit": "設計＋前端", "test_file": null, "test_title": null, "manual_result": null },
-    { "id": 51, "feature": "PUB-WEB-FN-002", "ac_id": "AC-P2", "case": "右圖左文版型正確呈現", "unit": "設計＋前端", "test_file": null, "test_title": null, "manual_result": null },
-    { "id": 52, "feature": "PUB-WEB-FN-002", "ac_id": "AC-P3", "case": "多組圖文區塊依序呈現且版型各自獨立", "unit": "設計＋前端", "test_file": null, "test_title": null, "manual_result": null },
+    { "id": 50, "feature": "PUB-WEB-FN-002", "ac_id": "AC-P1", "case": "左圖右文版型正確呈現", "unit": "需人工設計審查", "test_file": null, "test_title": null, "manual_result": null },
+    { "id": 51, "feature": "PUB-WEB-FN-002", "ac_id": "AC-P2", "case": "右圖左文版型正確呈現", "unit": "需人工設計審查", "test_file": null, "test_title": null, "manual_result": null },
+    { "id": 52, "feature": "PUB-WEB-FN-002", "ac_id": "AC-P3", "case": "多組圖文區塊依序呈現且版型各自獨立", "unit": "需人工設計審查", "test_file": null, "test_title": null, "manual_result": null },
     { "id": 53, "feature": "PUB-WEB-FN-002", "ac_id": "AC-P4", "case": "頁面內容以 HTML 原樣渲染", "unit": "前端", "test_file": null, "test_title": null, "manual_result": null },
     { "id": 54, "feature": "PUB-WEB-FN-002", "ac_id": "AC-P5", "case": "中間篇同時顯示上一則與下一則", "unit": "前端", "test_file": null, "test_title": null, "manual_result": null },
-    { "id": 55, "feature": "PUB-WEB-FN-002", "ac_id": "AC-P6", "case": "第一篇不顯示上一則", "unit": "設計＋前端", "test_file": null, "test_title": null, "manual_result": null },
-    { "id": 56, "feature": "PUB-WEB-FN-002", "ac_id": "AC-P7", "case": "最後一篇不顯示下一則", "unit": "設計＋前端", "test_file": null, "test_title": null, "manual_result": null },
-    { "id": 57, "feature": "PUB-WEB-FN-002", "ac_id": "AC-P8", "case": "僅一筆資料時上下則皆不顯示", "unit": "設計＋前端", "test_file": null, "test_title": null, "manual_result": null },
+    { "id": 55, "feature": "PUB-WEB-FN-002", "ac_id": "AC-P6", "case": "第一篇不顯示上一則", "unit": "需人工設計審查", "test_file": null, "test_title": null, "manual_result": null },
+    { "id": 56, "feature": "PUB-WEB-FN-002", "ac_id": "AC-P7", "case": "最後一篇不顯示下一則", "unit": "需人工設計審查", "test_file": null, "test_title": null, "manual_result": null },
+    { "id": 57, "feature": "PUB-WEB-FN-002", "ac_id": "AC-P8", "case": "僅一筆資料時上下則皆不顯示", "unit": "需人工設計審查", "test_file": null, "test_title": null, "manual_result": null },
     { "id": 58, "feature": "PUB-WEB-FN-002", "ac_id": "AC-P9", "case": "點擊下一則正確切換內容", "unit": "前端", "test_file": null, "test_title": null, "manual_result": null },
-    { "id": 59, "feature": "PUB-WEB-FN-002", "ac_id": "AC-P10", "case": "選填欄位無資料時整區塊不顯示", "unit": "設計＋前端", "test_file": null, "test_title": null, "manual_result": null },
+    { "id": 59, "feature": "PUB-WEB-FN-002", "ac_id": "AC-P10", "case": "選填欄位無資料時整區塊不顯示", "unit": "需人工設計審查", "test_file": null, "test_title": null, "manual_result": null },
     { "id": 60, "feature": "PUB-WEB-FN-002", "ac_id": "AC-B1", "case": "存取已刪除之頁面", "unit": "後端", "test_file": null, "test_title": null, "manual_result": null }
   ]
 }
