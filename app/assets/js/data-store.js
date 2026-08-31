@@ -93,6 +93,26 @@ export function createPage({ name, createdDate, blocks, content, note }) {
     return page;
 }
 
+/** 依 id 取回單筆頁面資料，找不到回傳 null（編輯頁載入既有值、EX-1 存在性檢查共用）。 */
+export function getPageById(id) {
+    return readAll().find((page) => page.id === id) || null;
+}
+
+/**
+ * 更新既有頁面資料。呼叫前應已完成欄位驗證與唯一值檢核（排除本筆），本函式不重複檢查。
+ * 若該筆資料已不存在（PAG-ADM-FN-003 EX-1：編輯期間被其他分頁刪除）回傳 null，不會重新建立。
+ */
+export function updatePage(id, { name, createdDate, blocks, content, note }) {
+    const pages = readAll();
+    const index = pages.findIndex((page) => page.id === id);
+    if (index === -1) return null;
+
+    const updated = { ...pages[index], name, createdDate, blocks, content: content || '', note: note || '' };
+    pages[index] = updated;
+    writeAll(pages);
+    return updated;
+}
+
 // --- 圖片 Blob 儲存（IndexedDB）---
 // 區塊圖片與內容編輯器內嵌圖片都走這裡：存 Blob 本身而非 base64，避免撐爆 localStorage（風險 R-8）。
 

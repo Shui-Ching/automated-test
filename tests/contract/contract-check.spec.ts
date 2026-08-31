@@ -14,9 +14,11 @@ import { seedAdmin } from '../support/seed';
  */
 for (const page of contract.pages) {
     test(`契約檢查：${page.spec} 的 data-testid 全部存在`, async ({ page: browserPage }) => {
-        // 無資料 + 已登入是所有後台頁面的最小共同起始狀態：沒有登入狀態會被 auth-guard 導回登入頁，
+        // 無資料 + 已登入是多數後台頁面的最小共同起始狀態：沒有登入狀態會被 auth-guard 導回登入頁，
         // 登入頁本身多做這步不影響結果（login.js 進頁就會清掉殘留的登入狀態）。
-        await seedAdmin(browserPage, []);
+        // page-edit 是例外：它需要 `?id=` 對應到一筆存在的資料才不會被 EX-1（資料不存在）導回列表，
+        // 因此該條目在契約檔自帶 `seed`，這裡優先使用；其餘頁面沒有這個欄位，維持空陣列。
+        await seedAdmin(browserPage, page.seed ?? []);
         await browserPage.goto(page.url);
 
         // 先確認頁面本身真的載入了。少了這一步，頁面 404 時下面每一條 expect 都會失敗，

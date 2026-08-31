@@ -81,11 +81,30 @@ Phase 3 加前台頁面用的種子資料）多塞一筆進去，就會讓這幾
 | 欄位 | 型態 | 說明 |
 | :--- | :--- | :--- |
 | `layout` | `'image-left'` \| `'image-right'` | 對應規格「左圖右文」／「右圖左文」 |
-| `image` | string | IndexedDB 圖片 Blob 的 key，不是圖片本身。**用 `seedAdmin` 填種帶圖片的頁面時，這個 key 目前不會對應到 IndexedDB 裡真的存在的 Blob**——`page.addInitScript` 只寫 localStorage／sessionStorage，不會連帶寫 IndexedDB，所以測試若要驗證「編輯頁正確顯示既有圖片縮圖」，`image` 欄位填一個假字串可以讓 `.length` 或「有沒有值」這類存在性斷言通過，但無法驗證縮圖真的渲染出來。這條留給 2.6 實作編輯頁時一併補上 IndexedDB 的填種方式 |
+| `image` | string | IndexedDB 圖片 Blob 的 key，不是圖片本身。**`seedAdmin` 不會連帶寫 IndexedDB**——`page.addInitScript` 只寫 localStorage／sessionStorage，所以填一個假字串可以讓「有沒有值」這類存在性斷言通過（編輯頁的必填檢核只看這個 key 是否為真值，不要求 Blob 真的存在），但無法驗證縮圖真的渲染出來 |
 | `caption` | string，選填 | 圖說文字 |
 
 `admin-pages` 這把 key 名稱與上面的欄位名稱是契約的一部分：`app/assets/js/data-store.js`
 改了任何一個欄位名稱，就要同時回來改這份文件與所有用到 `seedAdmin` 的測試。
+
+## `image` key 的 IndexedDB 填種缺口，2.6 決定不擴充 `seedAdmin`
+
+上一節提到 `seedAdmin` 只寫 localStorage／sessionStorage，`blocks[].image` 填的假字串
+在 IndexedDB 裡找不到對應的 Blob。2.6 實作編輯頁面時評估過用 `page.addInitScript`
+連帶寫入 IndexedDB（`admin-page-images` 資料庫），但 `indexedDB.open()` 到寫入完成
+是非同步的一連串 callback，`addInitScript` 不保證這串非同步操作會在頁面自身的
+module script（`page-edit.js` 讀 Blob 的那段）執行前完成——兩者的完成時機沒有
+明確的先後保證，硬做會做出一個「大部分時候可行、但沒有時序保證」的填種方式，
+問題只會在 CI 環境比較慢或比較快時才浮現，難以重現。
+
+**決定**：需要驗證「縮圖真的渲染出來」的測試（PAG-ADM-FN-003 AC-P1），改成不用
+`seedAdmin` 填圖片資料，而是先跑一遍 `page-create.html` 的真實 UI 流程上傳圖片，
+讓 `saveImageBlob()` 透過應用程式自己的程式碼把 Blob 寫進同一個瀏覽器 context 的
+IndexedDB（跟使用者操作走的是同一條路徑，沒有時序問題），儲存後從頁面列表點
+「編輯」進入編輯頁，這時候讀到的 `image` key 保證對應到真的存在的 Blob。其餘
+不需要驗證縮圖是否真的渲染（只需要版型、圖說、筆數這類跟 Blob 內容無關的行為）
+的測試，繼續用 `seedAdmin` 的假 `image` key，因為編輯頁的必填檢核只看這個 key
+是否為真值，不要求 Blob 真的存在。
 
 ## 登入狀態一併帶入
 

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>編輯頁面 — 頁面管理系統</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css"
+        integrity="sha512-/FHUK/LsH78K9XTqsR9hbzr21J8B8RwHR/r8Jv9fzry6NVAOVIGFKQCNINsbhK7a1xubVu2r5QZcz2T9cKpubw=="
+        crossorigin="anonymous">
+    <!-- 兩支都必須是傳統 script 且不加 defer，順序不可對調：
+         session-store 先建立 API，auth-guard 才有東西可呼叫，
+         而兩者都要趕在第一次繪製之前完成（[NFR-001] 不得顯示版面骨架）。 -->
+    <script src="../assets/js/session-store.js"></script>
+    <script src="../assets/js/auth-guard.js"></script>
+</head>
+<body>
+    <div class="admin-page">
+        <header class="admin-topbar">
+            <h1 class="admin-topbar-title">編輯頁面</h1>
+            <button
+                type="button"
+                class="button button--secondary js-logout"
+                data-testid="page-form-logout">登出</button>
+        </header>
+
+        <main class="page-form">
+            <p class="toast js-toast" role="status" data-testid="page-form-toast" hidden></p>
+
+            <form class="page-form-body js-form" novalidate>
+                <div class="field">
+                    <label class="field-label" for="page-form-name">頁面名稱</label>
+                    <input
+                        class="field-input js-name"
+                        id="page-form-name"
+                        type="text"
+                        placeholder="請輸入頁面名稱"
+                        data-testid="page-form-name">
+                    <p class="field-error js-name-error" data-testid="page-form-name-error" hidden></p>
+                </div>
+
+                <div class="field">
+                    <label class="field-label" for="page-form-date">建立日期</label>
+                    <input
+                        class="field-input js-date"
+                        id="page-form-date"
+                        type="date"
+                        data-testid="page-form-date">
+                    <p class="field-error js-date-error" data-testid="page-form-date-error" hidden></p>
+                </div>
+
+                <div class="field">
+                    <span class="field-label">頁面內容</span>
+                    <div class="page-form-editor">
+                        <div id="page-form-content-toolbar" class="page-form-editor-toolbar">
+                            <button type="button" class="ql-bold" data-testid="page-form-content-bold" aria-label="粗體"></button>
+                            <button type="button" class="ql-italic" data-testid="page-form-content-italic" aria-label="斜體"></button>
+                            <button type="button" class="ql-list" value="bullet" data-testid="page-form-content-list" aria-label="項目清單"></button>
+                            <button type="button" class="ql-link" data-testid="page-form-content-link" aria-label="超連結"></button>
+                            <button type="button" class="ql-image" data-testid="page-form-content-image" aria-label="插入圖片"></button>
+                        </div>
+                        <div id="page-form-content-editor" class="page-form-editor-body js-content-editor" data-testid="page-form-content-editor"></div>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="field-label" for="page-form-note">補充說明</label>
+                    <textarea
+                        class="field-input js-note"
+                        id="page-form-note"
+                        rows="5"
+                        placeholder="請輸入補充說明"
+                        data-testid="page-form-note"></textarea>
+                    <div class="page-form-note-meta">
+                        <p class="field-error js-note-error" data-testid="page-form-note-error" hidden></p>
+                        <span class="page-form-note-count js-note-count" data-testid="page-form-note-count">0 / 500</span>
+                    </div>
+                </div>
+
+                <section class="page-form-blocks" aria-label="圖文區塊">
+                    <div class="page-form-blocks-list js-blocks-list" data-testid="page-form-blocks-list"></div>
+                    <button
+                        type="button"
+                        class="button button--secondary js-blocks-add"
+                        data-testid="page-form-blocks-add">新增圖文區塊</button>
+                </section>
+
+                <div class="page-form-actions">
+                    <a class="button button--secondary" href="page-list.html" data-testid="page-form-cancel">返回</a>
+                    <button type="submit" class="button button--primary js-save" data-testid="page-form-save">儲存</button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <template class="js-block-template">
+        <div class="page-form-block" data-testid="page-form-block-group">
+            <div class="page-form-block-header">
+                <span class="page-form-block-title"></span>
+                <button type="button" class="button button--danger button--sm js-block-remove" data-testid="page-form-block-remove">移除</button>
+            </div>
+
+            <fieldset class="page-form-block-layout">
+                <legend class="field-label">區塊版型</legend>
+                <label class="page-form-radio">
+                    <input type="radio" name="block-layout" value="image-left" class="js-block-layout" data-testid="page-form-block-layout-image-left">
+                    左圖右文
+                </label>
+                <label class="page-form-radio">
+                    <input type="radio" name="block-layout" value="image-right" class="js-block-layout" data-testid="page-form-block-layout-image-right">
+                    右圖左文
+                </label>
+                <p class="field-error js-block-layout-error" data-testid="page-form-block-layout-error" hidden></p>
+            </fieldset>
+
+            <div class="field">
+                <span class="field-label">區塊圖片</span>
+                <div class="page-form-block-image">
+                    <img class="page-form-block-image-preview js-block-image-preview" data-testid="page-form-block-image-preview" hidden alt="">
+                    <div class="page-form-block-image-actions">
+                        <label class="button button--secondary button--sm page-form-file-label">
+                            選擇
+                            <input type="file" accept="image/jpeg,image/png" class="js-block-image-input" data-testid="page-form-block-image-input" hidden>
+                        </label>
+                        <button type="button" class="button button--secondary button--sm js-block-image-remove" data-testid="page-form-block-image-remove" hidden aria-label="清除圖片">垃圾桶</button>
+                    </div>
+                </div>
+                <p class="field-error js-block-image-error" data-testid="page-form-block-image-error" hidden></p>
+            </div>
+
+            <div class="field">
+                <label class="field-label">圖說文字</label>
+                <input type="text" placeholder="請輸入圖說文字" class="field-input js-block-caption" data-testid="page-form-block-caption">
+                <p class="field-error js-block-caption-error" data-testid="page-form-block-caption-error" hidden></p>
+            </div>
+        </div>
+    </template>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js" integrity="sha512-P2W2rr8ikUPfa31PLBo5bcBQrsa+TNj8jiKadtaIrHQGMo6hQM6RdPjQYxlNguwHz8AwSQ28VkBK6kHBLgd/8g==" crossorigin="anonymous"></script>
+    <script type="module" src="../assets/js/page-edit.js"></script>
+</body>
+</html>

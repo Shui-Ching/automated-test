@@ -8,9 +8,8 @@ import { seedAdmin } from '../support/seed';
  * 依契約 tests/contract/testid-map.json 的 page-create 頁面選擇器撰寫，資料透過
  * tests/support/seed.ts 的 seedAdmin() 填種，寫法見 tests/contract/seed.md。
  *
- * AC-P4「再次進入編輯頁時應完整還原」的後半段（編輯頁載入既有內容）待 2.6 實作
- * page-edit.html 後才補齊，本檔目前只驗證「儲存後 HTML 格式正確寫入 storage」
- * 這個新增頁自己能驗證的部分。
+ * AC-P4「再次進入編輯頁時應完整還原」已補完後半段：2.6 實作 page-edit.html 後，
+ * 這條測試會接續導向編輯頁，驗證粗體與項目清單格式正確從 storage 還原回編輯器。
  *
  * AC-B1「區塊版型每一組皆不可為空」（ac-coverage.json id 20）在 UI 上不可達成
  * ——區塊版型單選有預設值「左圖右文」，一般操作路徑無法讓它變成空值，此規則屬於
@@ -127,6 +126,14 @@ test('[PAG-ADM-FN-002] AC-P4 頁面內容以 HTML 格式保存', async ({ page }
     expect(saved.content).toContain('<strong>');
     expect(saved.content).toContain('<ul>');
     expect(saved.content).toContain('<li>');
+
+    // 後半段：再次進入編輯頁時，粗體與項目清單格式應完整還原（PAG-ADM-FN-003 AC-P1 的內容部分）
+    await page.goto(`/admin/page-edit.html?id=${saved.id}`);
+    // 項目一是在「粗體文字」被設成粗體之後、緊接著按 Enter 換行輸入的，Quill 會延續前一行的
+    // 粗體格式，所以項目清單本身也是 <strong>，用 .first() 只鎖定第一段的粗體文字。
+    const editorAfterReload = contentEditor(page);
+    await expect(editorAfterReload.locator('strong').first()).toHaveText('粗體文字');
+    await expect(editorAfterReload.locator('li')).toHaveText('項目一');
 });
 
 test('[PAG-ADM-FN-002] AC-B1 頁面名稱不可為空', async ({ page }) => {
