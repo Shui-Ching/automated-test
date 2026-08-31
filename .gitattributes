@@ -1,0 +1,3 @@
+# 版本庫內一律以 LF 儲存，checkout 時交由各人的 core.autocrlf 處理。
+# 不統一的話，換機器編輯同一支檔案會產生整檔重寫的假 diff。
+* text=auto eol=lf
