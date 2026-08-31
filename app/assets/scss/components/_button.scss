@@ -1,0 +1,45 @@
+@use '../variables' as *;
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+    padding: 10px $spacing-lg;
+    border: 1px solid transparent;
+    border-radius: $radius-button;
+    font-size: $font-size-base;
+    font-weight: $font-weight-medium;
+    line-height: $line-height-tight;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.55;
+    }
+}
+
+.button--primary {
+    background-color: $color-primary;
+    color: $gray-0;
+
+    &:hover:not(:disabled) {
+        background-color: $color-primary-dark;
+    }
+}
+
+.button--secondary {
+    border-color: $gray-300;
+    background-color: $gray-0;
+    color: $gray-900;
+
+    &:hover:not(:disabled) {
+        border-color: $color-primary;
+        color: $color-primary;
+    }
+}
+
+.button--block {
+    width: 100%;
+}

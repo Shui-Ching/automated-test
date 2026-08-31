@@ -1,0 +1,19 @@
+{
+  "note": "前端與 PM 端的交接介面。每個頁面宣告有哪些 data-testid，PM 端據此撰寫測試，不自行發明選擇器。改名等同改 API：要嘛連同測試一起改，要嘛不要改。",
+  "pages": [
+    {
+      "id": "login",
+      "url": "/admin/login.html",
+      "spec": "[AUT-ADM-FN-001] 後台 後台登入",
+      "testids": {
+        "login-form": "登入表單本體",
+        "login-account": "帳號輸入框",
+        "login-password": "密碼輸入框（隱碼顯示）",
+        "login-submit": "登入按鈕，處理期間停用",
+        "login-alert": "表單層級提示，顯示「帳號或密碼錯誤」與逾時提示。無訊息時 hidden",
+        "login-account-error": "帳號欄位驗證訊息。無錯誤時 hidden",
+        "login-password-error": "密碼欄位驗證訊息。無錯誤時 hidden"
+      }
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+// 變數統一對外入口。下游 partial 一律 `@use '../variables' as *;`
+@forward 'variables-color';
+@forward 'variables-font';
+@forward 'variables-layout';

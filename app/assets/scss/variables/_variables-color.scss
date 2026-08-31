@@ -1,0 +1,30 @@
+@use 'sass:color';
+
+// 色彩 Token —— 白／深藍／灰色系
+// 移植到其他專案時只改「值」，變數名稱與 scale 結構保持不變，下游 partial 才能整批沿用。
+
+// 主色系
+$color-primary:       #1E3A5F;   // 深藍。導覽列、主要按鈕、連結
+$color-primary-dark:  #14273F;   // hover／active 的加深
+$color-secondary:     #5B7A9D;   // 輔色。次要按鈕、圖示
+$color-accent:        #C9A227;   // 點綴色（暗金）。少量強調，不做大面積使用
+
+// 灰階 scale
+$gray-0:    #FFFFFF;   // 頁面底色、卡片底
+$gray-50:   #F7F8FA;   // 區塊底色、表格斑馬紋
+$gray-100:  #EDEFF3;   // 分隔線、停用底色
+$gray-300:  #C9CED6;   // 輸入框框線
+$gray-500:  #8A929E;   // 提示文字、placeholder。對白底約 3.6:1，不可用於正式內文
+$gray-700:  #4A525E;   // 次要文字
+$gray-900:  #1F2429;   // 主要文字
+
+// 狀態色
+$info:      #2F6FB5;
+$success:   #2E7D4F;
+$warning:   #B7791F;
+$danger:    #C0392B;
+
+// 衍生的淺色底一律由主色 color.mix 產生，不另立變數。
+// 換品牌色時衍生色會自動跟著換；各自定義就會漏改。
+$color-primary-tint:  color.mix($color-primary, $gray-0, 8%);
+$danger-tint:         color.mix($danger, $gray-0, 8%);

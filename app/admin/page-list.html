@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>頁面列表 — 頁面管理系統</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <!-- 兩支都必須是傳統 script 且不加 defer，順序不可對調：
+         session-store 先建立 API，auth-guard 才有東西可呼叫，
+         而兩者都要趕在第一次繪製之前完成（[NFR-001] 不得顯示版面骨架）。 -->
+    <script src="../assets/js/session-store.js"></script>
+    <script src="../assets/js/auth-guard.js"></script>
+</head>
+<body>
+    <main>
+        <h1>頁面列表</h1>
+        <p>Phase 2 會實作列表、篩選與刪除。目前僅用於驗證登入守衛確實擋得住未登入存取。</p>
+    </main>
+</body>
+</html>

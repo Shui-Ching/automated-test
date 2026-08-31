@@ -1,0 +1,63 @@
+@use '../variables' as *;
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+}
+
+.field-label {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: $gray-700;
+}
+
+.field-input {
+    width: 100%;
+    padding: 10px $spacing-md;
+    border: 1px solid $gray-300;
+    border-radius: $radius-input;
+    background-color: $gray-0;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &::placeholder {
+        color: $gray-500;
+    }
+
+    &:hover {
+        border-color: $gray-500;
+    }
+
+    &:focus {
+        border-color: $color-primary;
+        box-shadow: 0 0 0 3px $color-primary-tint;
+        outline: none;
+    }
+
+    &.is-invalid {
+        border-color: $danger;
+
+        &:focus {
+            box-shadow: 0 0 0 3px $danger-tint;
+        }
+    }
+}
+
+// 單一欄位的錯誤訊息。無錯誤時整個元素不渲染，不留空高度。
+.field-error {
+    font-size: $font-size-xs;
+    color: $danger;
+}
+
+// 表單層級的錯誤訊息，顯示於表單上方
+.form-alert {
+    padding: $spacing-sm $spacing-md;
+    border: 1px solid $danger;
+    border-left-width: 3px;
+    border-radius: $radius-tag;
+    background-color: $danger-tint;
+    font-size: $font-size-sm;
+    color: $danger;
+}

@@ -1,0 +1,6 @@
+// 唯一編譯入口。只決定輸出順序，本身不寫任何樣式規則。
+// 順序即層級：variables → reset → base → 共用元件 → 頁面
+@use 'reset';
+@use 'base/base-form';
+@use 'components/button';
+@use 'pages/login';

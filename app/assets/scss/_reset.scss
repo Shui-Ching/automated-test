@@ -1,0 +1,63 @@
+@use 'variables' as *;
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: $font-family-base;
+    font-size: $font-size-base;
+    line-height: $line-height-base;
+    color: $gray-900;
+    background-color: $gray-0;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, p, figure {
+    margin: 0;
+}
+
+ul, ol {
+    margin: 0;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+// 表單元素預設不繼承字型，逐一補上
+input,
+button,
+textarea,
+select {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    color: inherit;
+}
+
+// 鍵盤操作必須看得見焦點。:focus-visible 讓滑鼠點擊不出現外框，鍵盤 Tab 才顯示。
+:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+}
+
+// 使用者若在系統設定關閉動態效果，一律尊重
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}

@@ -1,0 +1,132 @@
+@use '../variables' as *;
+
+// 登入頁採左右分割：左側深藍識別區、右側白底表單區。
+// 左側的區塊示意圖對應本系統實際管理的資料結構（圖文區塊 1～3 組、左圖右文／右圖左文），
+// 用系統自己的資料模型當視覺主體，而不是放一張無關的裝飾圖。
+.login {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    min-height: 100vh;
+
+    @media (max-width: $bp-lg-down) {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+}
+
+.login-brand {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: $spacing-2xl;
+    padding: $spacing-2xl;
+    background-color: $color-primary;
+    color: $gray-0;
+
+    @media (max-width: $bp-lg-down) {
+        gap: $spacing-lg;
+        padding: $spacing-lg;
+    }
+}
+
+.login-brand-eyebrow {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: $color-accent;
+}
+
+.login-brand-title {
+    margin-top: $spacing-sm;
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    line-height: $line-height-tight;
+    letter-spacing: -0.01em;
+}
+
+.login-brand-description {
+    margin-top: $spacing-md;
+    max-width: 32ch;
+    font-size: $font-size-sm;
+    color: rgba(255, 255, 255, 0.72);
+}
+
+// 區塊示意圖：三列，依序為左圖右文、右圖左文、左圖右文
+.login-brand-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+
+    @media (max-width: $bp-lg-down) {
+        display: none;
+    }
+}
+
+.login-brand-block {
+    display: grid;
+    grid-template-columns: 4fr 6fr;
+    gap: $spacing-sm;
+    height: 44px;
+
+    &.is-reversed {
+        grid-template-columns: 6fr 4fr;
+    }
+}
+
+.login-brand-block-image {
+    border-radius: $radius-tag;
+    background-color: rgba(255, 255, 255, 0.22);
+}
+
+.login-brand-block-text {
+    border-radius: $radius-tag;
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+// is-reversed 時圖片移到第二欄，文字回到第一欄，做出右圖左文
+.login-brand-block.is-reversed .login-brand-block-image {
+    order: 2;
+}
+
+.login-brand-footnote {
+    font-size: $font-size-xs;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.login-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-2xl $spacing-lg;
+    background-color: $gray-50;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+    width: 100%;
+    max-width: 380px;
+    padding: $spacing-xl;
+    border-radius: $radius-card;
+    background-color: $gray-0;
+    box-shadow: 0 1px 2px rgba(31, 36, 41, 0.06), 0 8px 24px rgba(31, 36, 41, 0.06);
+
+    @media (max-width: $bp-sm-down) {
+        padding: $spacing-lg;
+        box-shadow: none;
+    }
+}
+
+.login-form-heading {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    line-height: $line-height-tight;
+}
+
+.login-form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+}

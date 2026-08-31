@@ -1,0 +1,15 @@
+// 間距與圓角 Token
+
+// Spacing 尺標：8 的倍數（4px 為半級，用於圖示與文字之間的細部間距）
+$spacing-xs:   4px;
+$spacing-sm:   8px;
+$spacing-md:  16px;
+$spacing-lg:  24px;
+$spacing-xl:  32px;
+$spacing-2xl: 48px;
+
+// 圓角依用途分開，頁面只引用變數，不就地寫數字
+$radius-card:   8px;
+$radius-button: 6px;
+$radius-input:  6px;
+$radius-tag:    4px;

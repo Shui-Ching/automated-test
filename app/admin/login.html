@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>後台登入 — 頁面管理系統</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <!-- 傳統 script 且不加 defer：登入狀態 API 必須在頁面繪製前就備妥（見 session-store.js 檔頭） -->
+    <script src="../assets/js/session-store.js"></script>
+</head>
+<body>
+    <main class="login">
+        <section class="login-brand">
+            <div>
+                <p class="login-brand-eyebrow">頁面管理系統</p>
+                <h1 class="login-brand-title">維護前台頁面的<br>圖文內容與版型</h1>
+                <p class="login-brand-description">
+                    每個頁面可組合 1 至 3 組圖文區塊，各組獨立設定左圖右文或右圖左文，
+                    儲存後即時反映在前台。
+                </p>
+            </div>
+
+            <!-- 區塊示意圖：對應本系統管理的資料結構，非裝飾圖。aria-hidden 是因為它的資訊已由上方文字說明。 -->
+            <div class="login-brand-diagram" aria-hidden="true">
+                <div class="login-brand-block">
+                    <span class="login-brand-block-image"></span>
+                    <span class="login-brand-block-text"></span>
+                </div>
+                <div class="login-brand-block is-reversed">
+                    <span class="login-brand-block-image"></span>
+                    <span class="login-brand-block-text"></span>
+                </div>
+                <div class="login-brand-block">
+                    <span class="login-brand-block-image"></span>
+                    <span class="login-brand-block-text"></span>
+                </div>
+            </div>
+
+            <p class="login-brand-footnote">模擬資料版本 — 僅供自動化驗收試作使用</p>
+        </section>
+
+        <section class="login-panel">
+            <form class="login-form js-login-form" novalidate data-testid="login-form">
+                <h2 class="login-form-heading">登入後台</h2>
+
+                <p class="form-alert js-login-alert" role="alert" data-testid="login-alert" hidden></p>
+
+                <div class="login-form-fields">
+                    <div class="field">
+                        <label class="field-label" for="login-account">帳號</label>
+                        <input
+                            class="field-input js-login-account"
+                            id="login-account"
+                            name="account"
+                            type="text"
+                            maxlength="20"
+                            autocomplete="username"
+                            placeholder="請輸入帳號"
+                            data-testid="login-account">
+                        <p class="field-error" data-error-for="login-account" data-testid="login-account-error" hidden></p>
+                    </div>
+
+                    <div class="field">
+                        <label class="field-label" for="login-password">密碼</label>
+                        <input
+                            class="field-input js-login-password"
+                            id="login-password"
+                            name="password"
+                            type="password"
+                            maxlength="20"
+                            autocomplete="current-password"
+                            placeholder="請輸入密碼"
+                            data-testid="login-password">
+                        <p class="field-error" data-error-for="login-password" data-testid="login-password-error" hidden></p>
+                    </div>
+                </div>
+
+                <button
+                    class="button button--primary button--block js-login-submit"
+                    type="submit"
+                    data-testid="login-submit">登入</button>
+            </form>
+        </section>
+    </main>
+
+    <script type="module" src="../assets/js/login.js"></script>
+</body>
+</html>
