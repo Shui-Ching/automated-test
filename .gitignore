@@ -1,0 +1,24 @@
+# 相依套件
+node_modules/
+
+# 測試產物
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
+# 編譯輸出（SCSS 產物，以原始碼為準）
+app/assets/css/*.map
+
+# 機密與本機設定：任何含帳密、金鑰、連線字串的檔案一律不進版控
+.env
+.env.*
+!.env.example
+*.local.json
+secrets/
+
+# 作業系統與編輯器
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
