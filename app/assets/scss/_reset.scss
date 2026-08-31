@@ -33,6 +33,12 @@ ul, ol {
 img {
     max-width: 100%;
     display: block;
+
+    // display: block 蓋掉瀏覽器預設的 [hidden] { display: none }（author style 蓋 UA style），
+    // 跟 _button.scss 的 .button[hidden] 是同一個問題：不補回來，img 加 hidden 屬性沒有作用。
+    &[hidden] {
+        display: none;
+    }
 }
 
 // 表單元素預設不繼承字型，逐一補上

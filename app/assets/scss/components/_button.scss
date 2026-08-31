@@ -14,6 +14,12 @@
     cursor: pointer;
     transition: background-color 0.15s ease, border-color 0.15s ease;
 
+    // display: inline-flex 蓋掉瀏覽器預設的 [hidden] { display: none }（author style 蓋 UA style），
+    // 不補回來的話 hidden 屬性對 .button 完全沒作用，按鈕還是會顯示。
+    &[hidden] {
+        display: none;
+    }
+
     &:disabled {
         cursor: not-allowed;
         opacity: 0.55;

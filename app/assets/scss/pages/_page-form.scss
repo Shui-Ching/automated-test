@@ -1,0 +1,139 @@
+@use '../variables' as *;
+
+.page-form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: $spacing-2xl;
+
+    @media (max-width: $bp-sm-down) {
+        padding: $spacing-lg;
+    }
+}
+
+.page-form-body {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+}
+
+// --- 頁面內容編輯器（Quill）---
+
+.page-form-editor {
+    border-radius: $radius-input;
+    overflow: hidden;
+}
+
+.page-form-editor-body {
+    min-height: 200px;
+    font-family: $font-family-base;
+    font-size: $font-size-base;
+}
+
+// --- 補充說明字數提示 ---
+
+.page-form-note-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+}
+
+.page-form-note-count {
+    font-size: $font-size-xs;
+    color: $gray-500;
+    white-space: nowrap;
+}
+
+// --- 圖文區塊（可重複群組）---
+
+.page-form-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+}
+
+.page-form-blocks-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+}
+
+.page-form-block {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    padding: $spacing-lg;
+    border: 1px solid $gray-100;
+    border-radius: $radius-card;
+    background-color: $gray-0;
+}
+
+.page-form-block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.page-form-block-title {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $gray-700;
+}
+
+.page-form-block-layout {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $spacing-lg;
+    padding: 0;
+    border: none;
+
+    legend {
+        width: 100%;
+        margin-bottom: $spacing-xs;
+        padding: 0;
+    }
+}
+
+.page-form-radio {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    font-size: $font-size-base;
+    color: $gray-900;
+    cursor: pointer;
+}
+
+.page-form-block-image {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+}
+
+.page-form-block-image-preview {
+    width: 96px;
+    height: 96px;
+    border: 1px solid $gray-100;
+    border-radius: $radius-card;
+    object-fit: cover;
+}
+
+.page-form-block-image-actions {
+    display: flex;
+    gap: $spacing-sm;
+}
+
+.page-form-file-label {
+    cursor: pointer;
+}
+
+// --- 送出／取消 ---
+
+.page-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-sm;
+}
