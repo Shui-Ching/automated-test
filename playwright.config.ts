@@ -13,7 +13,8 @@ export default defineConfig({
   reporter: [
     ['list'],
     ['html', { open: 'never' }],
-    ['json', { outputFile: 'test-results/results.json' }],   // 派工單由這份產生
+    ['json', { outputFile: 'test-results/results.json' }],
+    ['./tests/reporters/dispatch-reporter.ts'],               // 產出派工單 Markdown（test-results/dispatch.md）
   ],
   use: {
     baseURL: 'http://localhost:5173',
