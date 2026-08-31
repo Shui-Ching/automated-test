@@ -10,8 +10,8 @@ import * as path from 'path';
  * tests/contract/contract-check.spec.ts 檔頭：前者是前端沒照契約實作或契約過期，不是 bug，
  * 混在一起會讓 triage 成本比人工測試還高。
  *
- * Phase 1 只有登入頁一個功能，派工單全部落在「前端」。這裡先用最簡單的路徑判斷，
- * 待 Phase 0.5 的 ac-coverage.json（AC → 負責單位）到位後，resolveUnit 改成查那份表。
+ * 負責單位依 tests/contract/ac-coverage.json 的 test_title 精確比對取得，
+ * 該表由 PM 端維護，分類規則見 docs/project-plan.md 第 179～186 行。
  */
 
 interface DispatchRow {
@@ -23,12 +23,32 @@ interface DispatchRow {
     screenshot: string | null;
 }
 
+interface CoverageRow {
+    unit: string;
+    test_title: string | null;
+}
+
 function isContractTest(filePath: string): boolean {
     return filePath.split(path.sep).join('/').includes('/tests/contract/');
 }
 
-function resolveUnit(filePath: string): string {
-    return isContractTest(filePath) ? '前端（契約不符，非 bug）' : '前端';
+function loadCoverageMap(): Map<string, string> {
+    const coveragePath = path.join(process.cwd(), 'tests', 'contract', 'ac-coverage.json');
+    const map = new Map<string, string>();
+    if (!fs.existsSync(coveragePath)) return map;
+
+    const parsed = JSON.parse(fs.readFileSync(coveragePath, 'utf-8')) as { rows: CoverageRow[] };
+    for (const row of parsed.rows) {
+        if (row.test_title) map.set(row.test_title, row.unit);
+    }
+    return map;
+}
+
+const coverageMap = loadCoverageMap();
+
+function resolveUnit(title: string, filePath: string): string {
+    if (isContractTest(filePath)) return '前端（契約不符，非 bug）';
+    return coverageMap.get(title) ?? '前端（未登記於 ac-coverage.json，請補登記）';
 }
 
 function extractAcId(title: string, filePath: string): string {
@@ -68,7 +88,7 @@ class DispatchReporter implements Reporter {
             scenario: test.title,
             expected: test.expectedStatus,
             actual: formatActual(result),
-            unit: resolveUnit(test.location.file),
+            unit: resolveUnit(test.title, test.location.file),
             screenshot: screenshot?.path ?? null,
         });
     }

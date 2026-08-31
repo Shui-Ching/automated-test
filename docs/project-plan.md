@@ -88,7 +88,7 @@ project-plan.md          ← 本檔
 
 ## 3. 分階段任務
 
-### Phase 0 — 基礎建設與決策（狀態：進行中，0.1～0.4 已完成）
+### Phase 0 — 基礎建設與決策（狀態：進行中，0.1～0.5 已完成）
 
 | # | 任務 | 產出／驗收 |
 | :-- | :--- | :--- |
@@ -96,7 +96,7 @@ project-plan.md          ← 本檔
 | 0.2 | ~~建立目錄結構與空殼檔案~~ **已完成** | `npm run dev` 可啟動於 `http://localhost:5173` |
 | 0.3 | ~~安裝 Playwright，跑通一條 hello-world 測試~~ **已完成** | `npx playwright test` 1 passed；並已刻意改壞標題確認測試會紅、再還原，證明斷言有辨識力 |
 | 0.4 | ~~逾時的可注入設計~~ **已完成**：`app/assets/js/session-store.js` 支援 `?sessionTimeout=<秒>`，正式值 1800 秒。**NFR-004 的寫入失敗開關留待 Phase 2 做 `data-store.js` 時一併處理** | — |
-| 0.5 | 定義 `ac-map.json` 的派工規則（設計／前端／後端三類） | 60 條 AC 全部有歸屬 |
+| 0.5 | ~~定義 `ac-coverage.json` 的派工規則（前端／後端／設計＋前端三類）~~ **已完成**：`tests/contract/ac-coverage.json` 60 條 AC／展開案例全部有歸屬，分類規則依第 179～186 行落地；`dispatch-reporter.ts` 的 `resolveUnit()` 已改成依 test title 查此表，不再硬編「其餘也是前端」；已用刻意植入的登入錯誤文案 bug 驗證查表結果為「前端」，還原後 `git diff app/assets/js/login.js` 乾淨 | 60 條 AC 全部有歸屬 |
 | 0.6 | PM 修正 SRS 的 NFR 編號錯誤（見風險 R-5） | 功能檔引用的 NFR 編號對得上 3.2 章 |
 | 0.7 | 開啟 GitHub Pages 並確認部署（見第 6 節） | 用實際的 Pages 網址開一次，確認 CSS 與 JS 都載入成功（子路徑的相對路徑問題只有在線上才驗得出來） |
 
