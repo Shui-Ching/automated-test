@@ -48,6 +48,47 @@
         "page-list-row-edit": "列內編輯連結，連到 page-edit.html?id=...（尚未實作）",
         "page-list-row-delete": "列內刪除按鈕，帶 data-id 屬性"
       }
+    },
+    {
+      "id": "page-create",
+      "url": "/admin/page-create.html",
+      "spec": "[PAG-ADM-FN-002] 後台 新增頁面",
+      "note": "testid 前綴用 page-form-*，不用 page-create-*：新增／編輯頁面（PAG-002／003）共用同一套欄位，這份契約日後 page-edit.html 會直接沿用同一批 testid，改名等同兩邊一起改。本頁需要有效登入狀態，seedAdmin() 用法同 page-list。頁面內容編輯器是 Quill（CDN 引入），工具列由本頁自訂容器（#page-form-content-toolbar）承載，testid 定位工具列按鈕；但實際輸入文字要對內容區塊的 `.ql-editor`（Quill 內部產生的 contenteditable 子元素）操作，`page-form-content-editor` 這個 testid 掛在外層容器（Quill 稱為 .ql-container），點擊/輸入請用 page.getByTestId('page-form-content-editor').locator('.ql-editor')。",
+      "testids": {
+        "page-form-logout": "登出按鈕",
+        "page-form-toast": "成功提示 Toast。無訊息時 hidden",
+        "page-form-name": "頁面名稱輸入框",
+        "page-form-name-error": "頁面名稱錯誤訊息。無錯誤時 hidden",
+        "page-form-date": "建立日期輸入框（<input type=date>）",
+        "page-form-date-error": "建立日期錯誤訊息。無錯誤時 hidden",
+        "page-form-content-editor": "頁面內容編輯器外層容器（Quill .ql-container），實際輸入請對內部 .ql-editor 操作，見上方 note",
+        "page-form-content-bold": "編輯器工具列：粗體",
+        "page-form-content-italic": "編輯器工具列：斜體",
+        "page-form-content-list": "編輯器工具列：項目清單（bullet）",
+        "page-form-content-link": "編輯器工具列：超連結",
+        "page-form-content-image": "編輯器工具列：插入圖片（走 IndexedDB Blob Store，非本階段 AC 覆蓋範圍）",
+        "page-form-note": "補充說明輸入框（textarea）",
+        "page-form-note-error": "補充說明錯誤訊息。無錯誤時 hidden",
+        "page-form-note-count": "補充說明已輸入字數／上限顯示",
+        "page-form-blocks-list": "圖文區塊清單容器，各組 page-form-block-group 依序渲染於其下",
+        "page-form-blocks-add": "新增圖文區塊按鈕，已達 3 組時 disabled",
+        "page-form-cancel": "返回按鈕，連到 page-list.html，不寫入資料",
+        "page-form-save": "儲存按鈕，處理期間 disabled"
+      },
+      "block_testids": {
+        "note": "以下 testid 每組圖文區塊各有一份（重複），排列順序即畫面順序、與規格特殊規則 2 一致，測試用 page.getByTestId('page-form-block-group').nth(i) 鎖定第 i 組（i 從 0 起）再從該 locator 往下找子元素，不用另外發明索引鍵——這裡的順序本身就是資料的一部分，不是列表列那種可能因排序而錯位的情況。",
+        "page-form-block-group": "單組圖文區塊容器",
+        "page-form-block-remove": "本組移除按鈕，僅剩 1 組時 hidden（不是 disabled）",
+        "page-form-block-layout-image-left": "版型單選：左圖右文",
+        "page-form-block-layout-image-right": "版型單選：右圖左文",
+        "page-form-block-layout-error": "區塊版型錯誤訊息。無錯誤時 hidden",
+        "page-form-block-image-input": "圖片檔案上傳 input（type=file，hidden 由外層 label 觸發，setInputFiles 對它操作不受 hidden 影響）",
+        "page-form-block-image-preview": "已上傳圖片縮圖預覽，未選擇圖片時 hidden",
+        "page-form-block-image-remove": "清除已選圖片的垃圾桶按鈕，未選擇圖片時 hidden",
+        "page-form-block-image-error": "區塊圖片錯誤訊息（必填／格式／大小三種規則共用同一個元素）。無錯誤時 hidden",
+        "page-form-block-caption": "圖說文字輸入框",
+        "page-form-block-caption-error": "圖說文字錯誤訊息。無錯誤時 hidden"
+      }
     }
   ]
 }

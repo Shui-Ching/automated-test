@@ -22,8 +22,16 @@ test('[PAG-ADM-FN-001] AC-P1 依頁面名稱關鍵字篩選', async ({ page }) =
 未登入時用 `location.replace('login.html')` 導頁，會把原本網址上的 query string
 整串丟掉；而 Phase 2 的操作流程本來就會一路導頁（列表 → 新增／編輯 → 儲存 →
 回列表），網址參數撐不過一次導頁。`page.addInitScript` 在每次導覽、每個新
-document 執行任何頁面自身腳本前都會先跑一次，資料寫進 storage 之後不管導去哪
-一頁都還在。
+document 執行任何頁面自身腳本前都會先跑一次，資料重置這件事本身因此不受導頁影響。
+
+**但這也表示 `seedAdmin` 內部的 `localStorage.setItem` 不能無條件每次導覽都執行**：
+Phase 2.4 起的流程會真的跨頁導（新增頁面 → 儲存 → 回列表），若每次導覽都重寫
+`admin-pages`，UI 操作寫入的資料會在下一次導覽時被種子資料整個蓋掉，測試會斷言
+「儲存後列表看得到這筆」卻永遠看不到。`seedAdmin` 用 `sessionStorage` 的 sentinel
+旗標把 `admin-pages` 的寫入包成只在同一分頁的第一次導覽執行一次，之後的導覽只
+不寫入 `admin-pages`（但仍會更新 `admin-session`，讓 session 維持有效）。這條在
+只有單頁操作的頁面列表測試（Phase 2.1～2.3）不會出現，是 2.4 實作新增頁面、
+寫第一條跨頁測試時才發現的。
 
 ## 為什麼直接寫 storage key，不呼叫 `data-store.js` 的函式
 
@@ -50,9 +58,11 @@ Phase 3 加前台頁面用的種子資料）多塞一筆進去，就會讓這幾
     "id": "p1",
     "name": "關於我們",
     "createdDate": "2026-01-10",
-    "blocks": [{}],
-    "content": "",
-    "note": ""
+    "blocks": [
+      { "layout": "image-left", "image": "img-fixture-1", "caption": "示意圖說" }
+    ],
+    "content": "<p><strong>粗體內容</strong></p>",
+    "note": "補充說明文字"
   }
 ]
 ```
@@ -62,8 +72,17 @@ Phase 3 加前台頁面用的種子資料）多塞一筆進去，就會讓這幾
 | `id` | string，測試裡隨便給穩定字串即可（`p1`、`p2`），不必是真的 UUID | 刪除、編輯連結的 `?id=` |
 | `name` | string | 列表顯示、名稱模糊搜尋、`data-page-name` |
 | `createdDate` | `YYYY-MM-DD` 字串 | 排序、日期區間篩選、列表顯示 |
-| `blocks` | 陣列 | **本階段只讀 `.length`**（列表的「# 組」欄），陣列內的物件形狀不重要，`[{}]` 就代表 1 組。新增／編輯頁面實作後，`layout`／`image`／`caption` 才會被讀取，屆時本檔會補上完整範例 |
-| `content` / `note` | string，選填 | 尚無頁面讀取，新增／編輯頁面實作後才會用到 |
+| `blocks` | 陣列，本階段（頁面列表）只讀 `.length`（列表的「# 組」欄） | 見下方 `blocks[]` 欄位表 |
+| `content` | string，HTML | 尚無頁面讀取（前台渲染待 Phase 3） |
+| `note` | string，選填 | 尚無頁面讀取 |
+
+**`blocks[]` 各筆欄位**（新增／編輯頁面 PAG-002／003 讀取）：
+
+| 欄位 | 型態 | 說明 |
+| :--- | :--- | :--- |
+| `layout` | `'image-left'` \| `'image-right'` | 對應規格「左圖右文」／「右圖左文」 |
+| `image` | string | IndexedDB 圖片 Blob 的 key，不是圖片本身。**用 `seedAdmin` 填種帶圖片的頁面時，這個 key 目前不會對應到 IndexedDB 裡真的存在的 Blob**——`page.addInitScript` 只寫 localStorage／sessionStorage，不會連帶寫 IndexedDB，所以測試若要驗證「編輯頁正確顯示既有圖片縮圖」，`image` 欄位填一個假字串可以讓 `.length` 或「有沒有值」這類存在性斷言通過，但無法驗證縮圖真的渲染出來。這條留給 2.6 實作編輯頁時一併補上 IndexedDB 的填種方式 |
+| `caption` | string，選填 | 圖說文字 |
 
 `admin-pages` 這把 key 名稱與上面的欄位名稱是契約的一部分：`app/assets/js/data-store.js`
 改了任何一個欄位名稱，就要同時回來改這份文件與所有用到 `seedAdmin` 的測試。
