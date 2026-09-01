@@ -187,7 +187,7 @@ session 已預先登記的版本，未變動）；`tests/contract/seed.md` 補�
 
 ---
 
-### Phase 4 — 自動派工機制完整化（狀態：4.1～4.4 已完成，4.5 未開始）
+### Phase 4 — 自動派工機制完整化（狀態：全部完成）
 
 | # | 任務 | 產出 |
 | :-- | :--- | :--- |
@@ -195,7 +195,7 @@ session 已預先登記的版本，未變動）；`tests/contract/seed.md` 補�
 | 4.2 | 三類負責單位判定規則落地 | **已完成**：規則見下表，落地於 `tests/contract/ac-coverage.json` 與 `dispatch-reporter.ts` 的 `resolveUnit()`（Phase 2.9 已建置） |
 | 4.3 | 失敗自動開 GitHub Issue 並掛 label（`owner:frontend` 等） | **已完成並在真實 GitHub Actions 實跑驗證過**：`.github/scripts/parse-dispatch.js` 解析 `dispatch.md`、`.github/workflows/e2e.yml` 新增手動觸發（`workflow_dispatch`）才執行的建立 Issue 步驟，依 `dispatch-id` HTML 註解搭配 `gh issue list --search` 去重、`gh label create --force` 自動補標籤。**驗證方式**：在臨時分支 `tmp/verify-4.3-issue-creation` 植入與 4.4 相同的後端唯一值檢核 bug、push、手動觸發 `workflow_dispatch`，確認正確建立 2 筆真實 Issue（[#1](https://github.com/Shui-Ching/automated-test/issues/1)、[#2](https://github.com/Shui-Ching/automated-test/issues/2)，標題、`owner:backend` label、執行紀錄連結皆正確），再觸發第二次確認去重機制正確略過、不重複建立，驗證後已關閉兩筆 Issue、還原程式碼、刪除臨時分支。**僅手動觸發時才會真的建立 Issue**，push／PR 觸發不會自動開單，避免洗版 public repo |
 | 4.4 | 全量測試跑一輪，**與 PM 的人工結果做四格交叉比對**，算出假綠燈與假紅燈各幾條 | **已完成**：以刻意植入已知 bug 取代 PM 人工結果基準，涵蓋三類負責單位規則各 1 個真實 bug + 1 種契約漂移情境，過程中發現並修正 `contract-check.spec.ts` 未涵蓋 `block_testids` 的缺口。完整報告見 `docs/dispatch-feasibility-report.md`：已植入驗證的 8 條路徑假綠燈 0 條，假紅燈情境已修正並重新驗證通過；**方法上無法偵測完全沒有自動化測試覆蓋的 AC（例如 id 20、39），這兩筆是已知的永久假綠燈名額**，結論是抽樣結果，非窮舉 60 條 AC 的保證 |
-| 4.5 | 把跑通的流程抽成可重用 skill（此時才做） | 未開始，需先呼叫 `skill-creator` |
+| 4.5 | 把跑通的流程抽成可重用 skill（此時才做） | **已完成**：`~/.claude/skills/auto-test-dispatch/`（個人全域 skill，跨專案共用，依規則不進本專案 repo）。內含 `dispatch-reporter.ts`／`parse-dispatch.js`（可直接複製沿用）、`contract-check.spec.ts.template`、`e2e-workflow.yml` 範本，以及 `references/methodology.md`（三類負責單位判定規則、契約檢查關卡設計、四格交叉比對驗證法、三個實測踩過的坑） |
 
 **負責單位判定規則（依 AC 的 Then 敘述形態）：**
 
