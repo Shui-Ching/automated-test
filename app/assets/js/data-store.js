@@ -1,11 +1,15 @@
 /**
  * 頁面資料的唯一存取入口。掛在 localStorage 的 `admin-pages` key，值為頁面物件陣列；
- * 圖文區塊與內容編輯器內嵌圖片另走 IndexedDB（見下方 `saveImageBlob` 一節），
- * 原因是 base64 塞進 localStorage 會撐爆容量（見 docs/project-plan.md 風險 R-8）。
+ * 圖文區塊與內容編輯器內嵌圖片改存 base64 dataURL，直接內嵌在頁面物件裡（見下方
+ * `readImageAsDataUrl` 一節）。此前曾改用 IndexedDB 存 Blob 以避免撐爆 localStorage
+ * 容量（見 docs/project-plan.md 風險 R-8），但這會讓圖片離開 `admin-pages` 這把 key
+ * 單獨存放，只要瀏覽器與網站來源不同（例如換一台電腦開同一個網址），圖片就會遺失
+ * ——2026-09-01 決定改回 base64 內嵌，換取「頁面資料本身可攜、可複製」，容量風險
+ * 見本檔 `readImageAsDataUrl` 的說明與 docs/project-plan.md 風險 R-8 的更新記錄。
  *
  * `admin-pages` 這把 key 與頁面物件的欄位名稱是測試契約的一部分（見 tests/contract/seed.md），
  * PM 端的測試直接寫入這把 key 來填種資料，改名或改欄位形狀等同改 API。
- * `blocks[].image` 存的是 IndexedDB 的 key（字串），不是圖片本身。
+ * `blocks[].image` 存的是圖片本身（base64 dataURL 字串），不是參照 key。
  *
  * ES module（而非 session-store.js 那種傳統 script）：這支檔案不需要在首次繪製前執行，
  * 只服務 page-list.js 這類功能邏輯，沿用 login.js 已經立下的慣例。
@@ -31,7 +35,22 @@ function readAll() {
     }
 }
 
+/**
+ * [NFR-004] 資料寫入失敗時要中止作業、提示「系統忙碌中，請稍後再試」、保留已輸入內容、
+ * 不留半筆資料。但純前端的模擬資料層裡，localStorage 寫入本來就不會自己失敗，這條 AC
+ * 沒有天然的觸發路徑（見 docs/project-plan.md 風險 R-9）。做法比照 session-store.js 的
+ * `?sessionTimeout=` 注入慣例：網址帶 `?forceWriteFailure=1` 時，寫入前搶先丟出一個
+ * 跟瀏覽器原生 `QuotaExceededError` 同名的 DOMException，讓呼叫端（page-create.js／
+ * page-edit.js）的錯誤處理路徑可以在測試中被真的觸發，而不用真的塞爆 localStorage。
+ */
+function resolveForceWriteFailure() {
+    return new URLSearchParams(window.location.search).get('forceWriteFailure') === '1';
+}
+
 function writeAll(pages) {
+    if (resolveForceWriteFailure()) {
+        throw new DOMException('已注入的寫入失敗（測試用，見 ?forceWriteFailure=1）', 'QuotaExceededError');
+    }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(pages));
 }
 
@@ -129,59 +148,39 @@ export function updatePage(id, { name, createdDate, blocks, content, note }) {
     return updated;
 }
 
-// --- 圖片 Blob 儲存（IndexedDB）---
-// 區塊圖片與內容編輯器內嵌圖片都走這裡：存 Blob 本身而非 base64，避免撐爆 localStorage（風險 R-8）。
+// --- 圖片轉 base64 dataURL ---
+// 區塊圖片與內容編輯器內嵌圖片都走這裡：轉成 dataURL 字串後直接存進 `admin-pages`
+// 的頁面物件裡，不再另外開資料庫存放，圖片會跟著頁面資料一起留在同一把 localStorage key。
+// 轉檔前先用 canvas 等比縮圖＋壓縮，從源頭壓低 base64 體積，緩解容量風險
+// （單張上限 2 MB、未壓縮時 base64 後再漲約 1.33 倍，見 docs/project-plan.md 風險 R-8）。
 
-const IMAGE_DB_NAME = 'admin-page-images';
-const IMAGE_DB_VERSION = 1;
-const IMAGE_STORE_NAME = 'images';
+const IMAGE_MAX_DIMENSION = 1600;
+const IMAGE_JPEG_QUALITY = 0.8;
 
-function openImageDb() {
+function loadImage(file) {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open(IMAGE_DB_NAME, IMAGE_DB_VERSION);
-        request.onupgradeneeded = () => {
-            request.result.createObjectStore(IMAGE_STORE_NAME);
-        };
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error('圖片載入失敗，檔案可能已損毀'));
+        img.src = URL.createObjectURL(file);
     });
 }
 
-/** 儲存圖片 Blob，回傳供 `blocks[].image` 或內容編輯器內嵌圖片參照的 id。 */
-export async function saveImageBlob(blob) {
-    const db = await openImageDb();
-    const id = generateId('img');
-    await new Promise((resolve, reject) => {
-        const tx = db.transaction(IMAGE_STORE_NAME, 'readwrite');
-        tx.objectStore(IMAGE_STORE_NAME).put(blob, id);
-        tx.oncomplete = resolve;
-        tx.onerror = () => reject(tx.error);
-    });
-    db.close();
-    return id;
-}
+/**
+ * 將圖片檔案等比縮圖（長邊上限 `IMAGE_MAX_DIMENSION`，不足則不放大）並壓縮後讀成 base64 dataURL，
+ * 供 `blocks[].image` 或內容編輯器內嵌圖片直接當作 `<img src>` 使用。PNG 保留原格式（避免透明背景
+ * 被壓成黑底或白底），僅縮圖不額外做失真壓縮；JPEG 額外套用 `IMAGE_JPEG_QUALITY` 壓縮率。
+ */
+export async function readImageAsDataUrl(file) {
+    const img = await loadImage(file);
+    URL.revokeObjectURL(img.src);
 
-/** 依 id 取回圖片 Blob，找不到回傳 null。 */
-export async function getImageBlob(id) {
-    const db = await openImageDb();
-    const blob = await new Promise((resolve, reject) => {
-        const tx = db.transaction(IMAGE_STORE_NAME, 'readonly');
-        const request = tx.objectStore(IMAGE_STORE_NAME).get(id);
-        request.onsuccess = () => resolve(request.result || null);
-        request.onerror = () => reject(request.error);
-    });
-    db.close();
-    return blob;
-}
+    const scale = Math.min(1, IMAGE_MAX_DIMENSION / Math.max(img.naturalWidth, img.naturalHeight));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(img.naturalWidth * scale);
+    canvas.height = Math.round(img.naturalHeight * scale);
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
 
-/** 移除圖片 Blob，用於使用者在畫面上清除已選圖片或移除整組圖文區塊時釋放儲存空間。 */
-export async function deleteImageBlob(id) {
-    const db = await openImageDb();
-    await new Promise((resolve, reject) => {
-        const tx = db.transaction(IMAGE_STORE_NAME, 'readwrite');
-        tx.objectStore(IMAGE_STORE_NAME).delete(id);
-        tx.oncomplete = resolve;
-        tx.onerror = () => reject(tx.error);
-    });
-    db.close();
+    const isPng = file.type === 'image/png';
+    return canvas.toDataURL(isPng ? 'image/png' : 'image/jpeg', isPng ? undefined : IMAGE_JPEG_QUALITY);
 }

@@ -37,7 +37,7 @@
 | 項目 | 選用 | 理由 |
 | :--- | :--- | :--- |
 | 前端 | 原生 HTML / SCSS / JS | 我的預設技術棧，本專案規模不需要框架 |
-| 資料層 | IndexedDB（圖片）+ localStorage（頁面資料） | 見〈風險 R-8〉：base64 圖片會撐爆 localStorage |
+| 資料層 | localStorage（頁面資料＋圖片皆為 base64 dataURL） | 2026-09-01 由 IndexedDB＋Blob 改回，原因與容量風險見〈風險 R-8〉 |
 | 測試 | Playwright（TypeScript） | 跨瀏覽器、內建 trace/截圖、JSON reporter 好解析 |
 | CI | GitHub Actions | 對 public/private repo 皆免費額度足夠 |
 | 預覽站 | GitHub Pages | repo 為 public，Pages 免費且開箱可用，不必再接第三方服務。網址公開，PM 直接開就能看 |
@@ -373,13 +373,19 @@ PUB-002 的 AC-P6（不得出現「上一則」）、AC-P8（兩者皆不顯示�
 每一條負向斷言都要先確認頁面確實載入了、且同層的對照元件確實可見（例如 AC-P6 要先確認「下一則」看得到、主標題是「甲頁面」），再斷言「上一則」不存在。
 **這條直接決定了這次試作的答案是「可行」還是「表面可行」**，Phase 1 的測試就要用這個寫法立標準。
 
-### R-9 — NFR-004（資料寫入失敗）在純前端沒有天然的觸發路徑（Phase 0 決策）
-NFR-004 要求寫入失敗時中止作業、提示「系統忙碌中，請稍後再試」、保留已輸入內容、不留半筆資料。但在純前端的模擬資料層裡，寫入不會自己失敗，這條 AC 沒辦法自動測。解法跟 R-1 同一類：在 `data-store.js` 留一個可注入的失敗開關，測試時打開它。這兩件事在 Phase 0 的 0.4 一起決定。
+### R-9 — NFR-004（資料寫入失敗）在純前端沒有天然的觸發路徑（2026-09-01 已完成）
+NFR-004 要求寫入失敗時中止作業、提示「系統忙碌中，請稍後再試」、保留已輸入內容、不留半筆資料。但在純前端的模擬資料層裡，寫入不會自己失敗，這條 AC 沒辦法自動測。解法跟 R-1 同一類：在 `data-store.js` 留一個可注入的失敗開關，測試時打開它，這兩件事在 Phase 0 的 0.4 就已決定，實作留待 Phase 2 一併處理。
 
-### R-8 — 圖片存 localStorage 會爆容量
-單張限 2 MB、每筆最多 3 組區塊，base64 編碼後體積再漲約 1.33 倍，而 localStorage 每個網域通常只有約 5 MB。存兩筆資料就滿了。改用 IndexedDB 直接存 Blob，不需 base64，容量上限也高得多。測試用的 fixture 圖片則一律用小圖（幾 KB），避免拖慢測試。
+**實作內容**：`data-store.js` 的 `writeAll()` 在網址帶 `?forceWriteFailure=1` 時，會在真正寫入 localStorage 前搶先丟出一個 `name` 為 `QuotaExceededError` 的 `DOMException`（跟瀏覽器原生的額度爆滿錯誤同名，讓呼叫端不用區分是真的爆滿還是注入的）。`page-create.js`／`page-edit.js` 的送出流程攔截這個錯誤時顯示「系統忙碌中，請稍後再試」、停留原頁、不清空已輸入內容；`localStorage.setItem` 本身是全有全無操作，寫入失敗代表這次改動完全沒有落地，不需要額外的回滾邏輯。對應測試：`tests/specs/pag-adm-fn-002.spec.ts`與`pag-adm-fn-003.spec.ts`各新增一條 NFR-004 測試，並已用「刻意讓注入開關失效」的方式驗證過這兩條斷言在失效時真的會轉紅（有辨識力），還原後全專案 70 條測試全綠。
 
-**同一個問題還有第二條路徑容易漏掉**：PAG-002 的「頁面內容」編輯器工具列有「插入圖片」，同樣限 2 MB，而這段內容是以 HTML 字串儲存的。一張 2 MB 的內嵌圖轉成 base64 約 2.7 MB，塞進單一個 localStorage key 就直接爆掉，走的不是區塊圖片那條路。做法是編輯器插入圖片時同樣先存進 Blob store、HTML 裡只放參照 id，或乾脆整筆頁面資料都改放 IndexedDB。
+### R-8 — 圖片存 localStorage 會爆容量（2026-09-01 決定改回 base64，已加縮圖壓縮緩解）
+單張限 2 MB、每筆最多 3 組區塊，base64 編碼後體積再漲約 1.33 倍，而 localStorage 每個網域通常只有約 5～10 MB（實際上限依瀏覽器而異）。原本改用 IndexedDB 直接存 Blob 迴避此風險，但代價是圖片離開 `admin-pages` 這把 key 單獨存放，換一台瀏覽器或清過站台資料就看不到圖——2026-09-01 決定改回 base64 dataURL 直接內嵌進 `blocks[].image` 與內容 HTML（見 `data-store.js` 的 `readImageAsDataUrl()`），換取「頁面資料本身可攜」。
+
+**緩解措施（已完成）**：`readImageAsDataUrl()` 轉檔前先用 canvas 等比縮圖（長邊上限 1600px，不足則不放大），JPEG 額外套用 0.8 壓縮率，PNG 僅縮圖、保留原格式以維持透明背景。從源頭把單張圖片壓到通常僅數百 KB，大幅降低逼近 localStorage 上限的機率。
+
+**錯誤處理（已完成）**：即使有縮圖壓縮，理論上仍可能因為圖片內容複雜（例如高解析度且無法有效壓縮的圖）或短時間內存入大量頁面而觸頂。`page-create.js`／`page-edit.js` 的送出流程現在會攔截 `QuotaExceededError`，依 NFR-004 顯示「系統忙碌中，請稍後再試」、停留原頁並保留使用者已輸入內容——`localStorage.setItem` 本身是全有全無操作，拋錯代表本次寫入完全沒有落地，不會產生半筆殘留資料，因此不需要額外的回滾邏輯。
+
+**測試覆蓋（已完成）**：`data-store.js` 已加上 `?forceWriteFailure=1` 這個測試專用的失敗開關，詳見 R-9。
 
 ---
 

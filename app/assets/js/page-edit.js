@@ -1,4 +1,4 @@
-import { getPageById, updatePage, pageNameExists, saveImageBlob, getImageBlob } from './data-store.js';
+import { getPageById, updatePage, pageNameExists, readImageAsDataUrl } from './data-store.js';
 import { showToast } from './toast.js';
 import {
     validatePageNameOnBlur,
@@ -14,7 +14,13 @@ import {
 const MESSAGES = {
     saveSuccess: '儲存成功',
     notFound: '資料不存在或已被刪除',
+    // 文案取自 NFR-004（見 docs/project-plan.md 風險 R-8／R-9）
+    writeFailure: '系統忙碌中，請稍後再試',
 };
+
+function isQuotaExceededError(error) {
+    return error instanceof DOMException && (error.name === 'QuotaExceededError' || error.code === 22);
+}
 
 const MAX_BLOCKS = 3;
 const MIN_BLOCKS = 1;
@@ -35,8 +41,8 @@ const blockTemplate = document.querySelector('.js-block-template');
 const saveButton = document.querySelector('.js-save');
 const toastEl = document.querySelector('.js-toast');
 
-/** 畫面狀態的唯一來源，結構與 page-create.js 相同，多一個 `existingImageId`
- * 記錄「未重新上傳時沿用的原圖片」（特殊規則 3）。移除整組只影響這份陣列，
+/** 畫面狀態的唯一來源，結構與 page-create.js 相同，多一個 `existingImage`
+ * 記錄「未重新上傳時沿用的原圖片」（特殊規則 3，值是 base64 dataURL 字串）。移除整組只影響這份陣列，
  * 真正寫回 storage 要等點擊「儲存」（特殊規則 4，AC-P6）。*/
 let blocks = [];
 
@@ -104,44 +110,12 @@ quill.getModule('toolbar').addHandler('image', () => {
             return;
         }
 
-        const id = await saveImageBlob(file);
+        const dataUrl = await readImageAsDataUrl(file);
         const range = quill.getSelection(true);
-        quill.insertEmbed(range.index, 'image', URL.createObjectURL(file));
-        const [leaf] = quill.getLeaf(range.index);
-        if (leaf && leaf.domNode) leaf.domNode.dataset.idbId = id;
+        quill.insertEmbed(range.index, 'image', dataUrl);
     });
     input.click();
 });
-
-/** 儲存前把編輯器內嵌圖片換成 `idb:<id>` 參照，寫法與 page-create.js 相同（見該檔註解）。 */
-function serializeContent() {
-    const container = document.createElement('div');
-    container.innerHTML = quill.root.innerHTML;
-    container.querySelectorAll('img[data-idb-id]').forEach((img) => {
-        img.setAttribute('src', `idb:${img.dataset.idbId}`);
-        img.removeAttribute('data-idb-id');
-    });
-    return container.innerHTML;
-}
-
-/**
- * 載入既有內容時的反向操作：把儲存格式的 `idb:<id>` 參照換回可顯示的 blob URL，
- * 並把 id 存回 dataset，讓使用者不動這張圖片直接再次儲存時，serializeContent() 仍能正確
- * 換回 `idb:<id>`（而不是把暫時的 blob: URL 誤存成永久參照，reload 後就會失效）。
- * 直接操作 `quill.root`（而非離線容器）是因為 img.src 賦值本身就是即時生效的 DOM 操作，
- * 不需要透過 Quill 的 Delta API；serializeContent() 讀的也是同一份即時 DOM。
- */
-async function resolveContentImages() {
-    const embeddedImages = Array.from(quill.root.querySelectorAll('img[src^="idb:"]'));
-    for (const img of embeddedImages) {
-        const id = img.getAttribute('src').slice('idb:'.length);
-        const blob = await getImageBlob(id);
-        if (blob) {
-            img.src = URL.createObjectURL(blob);
-            img.dataset.idbId = id;
-        }
-    }
-}
 
 // --- 圖文區塊（可重複群組，1～3 組）---
 
@@ -178,14 +152,12 @@ function renderBlocks() {
         const imageRemoveButton = root.querySelector('.js-block-image-remove');
         const imageError = root.querySelector('.js-block-image-error');
 
-        // 縮圖與垃圾桶按鈕分開判斷：垃圾桶只要「資料上有圖片」（existingImageId 或新選檔）就該可清除，
-        // 不能綁在 previewUrl 有沒有成功解出縮圖——找不到對應 Blob（例如資料損毀）時縮圖雖然是空的，
-        // 使用者仍應該能清除後重新上傳，這正是特殊規則 3 要處理的情況。
+        // 垃圾桶按鈕只要「資料上有圖片」（existingImage 或新選檔）就該可清除。
         if (block.previewUrl) {
             imagePreview.src = block.previewUrl;
             imagePreview.hidden = false;
         }
-        imageRemoveButton.hidden = !(block.file || block.existingImageId);
+        imageRemoveButton.hidden = !(block.file || block.existingImage);
 
         imageInput.addEventListener('change', () => {
             const file = imageInput.files[0];
@@ -201,19 +173,19 @@ function renderBlocks() {
             clearFieldError(imageError, null);
             if (block.previewUrl) URL.revokeObjectURL(block.previewUrl);
             block.file = file;
-            block.existingImageId = null;
+            block.existingImage = null;
             block.previewUrl = URL.createObjectURL(file);
             imagePreview.src = block.previewUrl;
             imagePreview.hidden = false;
             imageRemoveButton.hidden = false;
         });
 
-        // 特殊規則 3：清除後該組須重新上傳才可儲存 —— 連同 existingImageId 一起清掉，
+        // 特殊規則 3：清除後該組須重新上傳才可儲存 —— 連同 existingImage 一起清掉，
         // 不能只清畫面預覽，否則驗證仍會誤判為「已有圖片」。
         imageRemoveButton.addEventListener('click', () => {
             if (block.previewUrl) URL.revokeObjectURL(block.previewUrl);
             block.file = null;
-            block.existingImageId = null;
+            block.existingImage = null;
             block.previewUrl = '';
             imageInput.value = '';
             imagePreview.hidden = true;
@@ -243,7 +215,7 @@ function renderBlocks() {
 
 blocksAddButton.addEventListener('click', () => {
     if (blocks.length >= MAX_BLOCKS) return;
-    blocks.push({ layout: 'image-left', file: null, existingImageId: null, previewUrl: '', caption: '' });
+    blocks.push({ layout: 'image-left', file: null, existingImage: null, previewUrl: '', caption: '' });
     renderBlocks();
 });
 
@@ -294,7 +266,7 @@ function validateAll() {
             clearFieldError(layoutError, null);
         }
 
-        const imageCheck = validateBlockImageOnSubmit(Boolean(block.file) || Boolean(block.existingImageId));
+        const imageCheck = validateBlockImageOnSubmit(Boolean(block.file) || Boolean(block.existingImage));
         if (imageCheck) {
             showFieldError(imageError, null, imageCheck);
             valid = false;
@@ -330,15 +302,15 @@ form.addEventListener('submit', async (event) => {
     try {
         const savedBlocks = [];
         for (const block of blocks) {
-            const imageId = block.file ? await saveImageBlob(block.file) : block.existingImageId;
-            savedBlocks.push({ layout: block.layout, image: imageId, caption: block.caption });
+            const image = block.file ? await readImageAsDataUrl(block.file) : block.existingImage;
+            savedBlocks.push({ layout: block.layout, image, caption: block.caption });
         }
 
         updatePage(pageId, {
             name: nameInput.value,
             createdDate: dateInput.value,
             blocks: savedBlocks,
-            content: serializeContent(),
+            content: quill.root.innerHTML,
             note: noteInput.value,
         });
 
@@ -348,6 +320,12 @@ form.addEventListener('submit', async (event) => {
         }, 600);
     } catch (error) {
         saveButton.disabled = false;
+        // NFR-004：localStorage 寫入額度爆滿時中止作業、停留原頁並保留已輸入內容（風險 R-8/R-9）。
+        // localStorage.setItem 本身是全有全無操作，拋錯代表本次寫入完全沒有落地，不會留半筆資料。
+        if (isQuotaExceededError(error)) {
+            showToast(toastEl, MESSAGES.writeFailure);
+            return;
+        }
         throw error;
     }
 });
@@ -360,7 +338,7 @@ logoutButton.addEventListener('click', () => {
 
 // --- 初始載入：帶入既有值（AC-P1）---
 
-async function init() {
+function init() {
     const page = pageId ? getPageById(pageId) : null;
     if (!page) {
         redirectToList(MESSAGES.notFound);
@@ -373,24 +351,14 @@ async function init() {
     updateNoteCount();
 
     quill.root.innerHTML = page.content || '';
-    await resolveContentImages();
 
-    blocks = await Promise.all(
-        page.blocks.map(async (block) => {
-            let previewUrl = '';
-            if (block.image) {
-                const blob = await getImageBlob(block.image);
-                if (blob) previewUrl = URL.createObjectURL(blob);
-            }
-            return {
-                layout: block.layout,
-                file: null,
-                existingImageId: block.image || null,
-                previewUrl,
-                caption: block.caption || '',
-            };
-        })
-    );
+    blocks = page.blocks.map((block) => ({
+        layout: block.layout,
+        file: null,
+        existingImage: block.image || null,
+        previewUrl: block.image || '',
+        caption: block.caption || '',
+    }));
 
     renderBlocks();
 }

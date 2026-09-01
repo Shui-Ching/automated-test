@@ -339,3 +339,20 @@ test('[PAG-ADM-FN-003] AC-B2 圖文區塊已達上限', async ({ page }) => {
 
     await expect(page.getByTestId('page-form-blocks-add')).toBeDisabled();
 });
+
+test('[PAG-ADM-FN-003] NFR-004 資料寫入失敗時中止作業並提示、保留已輸入內容、不覆寫原資料', async ({ page }) => {
+    // 寫入本來不會自己失敗，用 ?forceWriteFailure=1 注入（見 data-store.js writeAll() 的說明）。
+    await seedAdmin(page, baseSeed);
+    await page.goto('/admin/page-edit.html?id=p-story&forceWriteFailure=1');
+
+    await page.getByTestId('page-form-note').fill('更新後的補充說明');
+    await page.getByTestId('page-form-save').click();
+
+    await expect(page.getByTestId('page-form-toast')).toHaveText('系統忙碌中，請稍後再試');
+    // 停留原頁：不會被導去 page-list.html，且已輸入內容原封不動。
+    expect(page.url()).toContain('page-edit.html');
+    await expect(page.getByTestId('page-form-note')).toHaveValue('更新後的補充說明');
+
+    const saved = await readSavedPage(page, 'p-story');
+    expect(saved.note).toBe('原始補充說明');
+});

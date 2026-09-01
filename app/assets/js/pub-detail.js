@@ -2,11 +2,12 @@
  * [PUB-WEB-FN-002] 前台 頁面內容顯示。
  *
  * 不需要登入狀態（NFR-003）。頁面內容以 sanitizeHtml() 消毒後才塞進 innerHTML
- * （見 html-sanitize.js 與 docs/project-plan.md 風險 R-3），內嵌圖片沿用
- * page-edit.js resolveContentImages() 的做法，把 `idb:<id>` 參照換回可顯示的 blob URL。
+ * （見 html-sanitize.js 與 docs/project-plan.md 風險 R-3）。圖文區塊與內容編輯器
+ * 內嵌圖片都是 base64 dataURL，直接存在 `blocks[].image` 或內容 HTML 的 `<img src>`
+ * 裡，不需要另外解析參照。
  */
 
-import { getPageById, listPublicPages, getImageBlob } from './data-store.js';
+import { getPageById, listPublicPages } from './data-store.js';
 import { sanitizeHtml } from './html-sanitize.js';
 import { showToast } from './toast.js';
 
@@ -35,7 +36,7 @@ function redirectToList() {
     }, 600);
 }
 
-async function renderBlocks(blocks) {
+function renderBlocks(blocks) {
     blocksEl.innerHTML = '';
 
     for (const block of blocks) {
@@ -49,11 +50,8 @@ async function renderBlocks(blocks) {
         img.alt = block.caption || '';
         img.hidden = true;
         if (block.image) {
-            const blob = await getImageBlob(block.image);
-            if (blob) {
-                img.src = URL.createObjectURL(blob);
-                img.hidden = false;
-            }
+            img.src = block.image;
+            img.hidden = false;
         }
 
         // 圖說文字無資料時該側留空，不顯示替代文字（特殊規則，介面欄位定義 B）
@@ -68,7 +66,7 @@ async function renderBlocks(blocks) {
 }
 
 /** 頁面內容以 HTML 原樣渲染，無資料時整區塊不顯示（AC-P10）。 */
-async function renderContent(rawHtml) {
+function renderContent(rawHtml) {
     const trimmed = (rawHtml || '').trim();
     if (!trimmed) {
         contentSection.hidden = true;
@@ -77,13 +75,6 @@ async function renderContent(rawHtml) {
 
     contentSection.hidden = false;
     contentEl.innerHTML = sanitizeHtml(trimmed);
-
-    const embeddedImages = Array.from(contentEl.querySelectorAll('img[src^="idb:"]'));
-    for (const img of embeddedImages) {
-        const id = img.getAttribute('src').slice('idb:'.length);
-        const blob = await getImageBlob(id);
-        if (blob) img.src = URL.createObjectURL(blob);
-    }
 }
 
 /** 補充說明無資料時整區塊不顯示（AC-P10），有資料時保留原輸入之換行。 */
@@ -127,7 +118,7 @@ function renderNav(currentId) {
     }
 }
 
-async function init() {
+function init() {
     const page = pageId ? getPageById(pageId) : null;
     if (!page) {
         redirectToList();
@@ -138,8 +129,8 @@ async function init() {
     nameEl.textContent = page.name;
     dateEl.textContent = page.createdDate;
 
-    await renderBlocks(page.blocks || []);
-    await renderContent(page.content || '');
+    renderBlocks(page.blocks || []);
+    renderContent(page.content || '');
     renderNote(page.note || '');
     renderNav(page.id);
 }

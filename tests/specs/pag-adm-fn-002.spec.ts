@@ -283,3 +283,22 @@ test('[PAG-ADM-FN-002] AC-B3 圖文區塊不可移除至零組', async ({ page }
     await expect(page.getByTestId('page-form-block-group')).toHaveCount(1);
     await expect(page.getByTestId('page-form-block-remove')).toBeHidden();
 });
+
+test('[PAG-ADM-FN-002] NFR-004 資料寫入失敗時中止作業並提示、保留已輸入內容、不留半筆資料', async ({ page }) => {
+    // 寫入本來不會自己失敗，用 ?forceWriteFailure=1 注入（見 data-store.js writeAll() 的說明）。
+    await seedAdmin(page, []);
+    await page.goto('/admin/page-create.html?forceWriteFailure=1');
+
+    await page.getByTestId('page-form-name').fill('寫入失敗測試頁');
+    await page.getByTestId('page-form-date').fill('2026-03-01');
+    await page.getByTestId('page-form-block-image-input').setInputFiles('tests/fixtures/small.jpg');
+    await page.getByTestId('page-form-save').click();
+
+    await expect(page.getByTestId('page-form-toast')).toHaveText('系統忙碌中，請稍後再試');
+    // 停留原頁：不會被導去 page-list.html，且已輸入內容原封不動。
+    expect(page.url()).toContain('page-create.html');
+    await expect(page.getByTestId('page-form-name')).toHaveValue('寫入失敗測試頁');
+
+    const pages = await page.evaluate(() => JSON.parse(localStorage.getItem('admin-pages') || '[]'));
+    expect(pages).toHaveLength(0);
+});
