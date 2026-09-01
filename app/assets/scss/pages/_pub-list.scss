@@ -6,13 +6,28 @@
     display: flex;
     flex-direction: column;
     gap: $spacing-lg;
-    max-width: 1080px;
-    margin: 0 auto;
     padding: $spacing-2xl;
 
     @media (max-width: $bp-sm-down) {
         padding: $spacing-lg;
     }
+}
+
+.pub-list-intro {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+}
+
+.pub-list-heading {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    line-height: $line-height-tight;
+}
+
+.pub-list-lead {
+    font-size: $font-size-sm;
+    color: $gray-700;
 }
 
 .pub-list-link {

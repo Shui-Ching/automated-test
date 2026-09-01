@@ -4,6 +4,10 @@
     display: flex;
     flex-direction: column;
     gap: $spacing-xl;
+
+    // 這個元素同時掛 .pub-main（外框 1400px）與 .pub-detail，兩者權重相同，
+    // 靠 main.scss 的載入順序（components 在 pages 之前）由這裡的 720px 勝出。
+    // 720px 是中文閱讀行寬，內文不跟著外框放寬；調整 main.scss 順序會讓這條失效。
     max-width: 720px;
     margin: 0 auto;
     padding: $spacing-2xl;

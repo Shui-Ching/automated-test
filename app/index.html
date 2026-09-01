@@ -9,10 +9,21 @@
 <body>
     <div class="pub-page">
         <header class="pub-topbar">
-            <h1 class="pub-topbar-title">頁面列表</h1>
+            <div class="pub-topbar-inner">
+                <a class="pub-logo" href="index.html" data-testid="pub-logo">
+                    <span class="pub-logo-mark" aria-hidden="true"></span>
+                    <span class="pub-logo-text">頁面管理<span class="pub-logo-text-em">模擬站</span></span>
+                </a>
+                <!-- 前台不提供任何後台入口（NFR-003），此處只放中性的版本標記，不放登入／登出 -->
+                <p class="pub-topbar-meta">模擬資料版本 v1.1</p>
+            </div>
         </header>
 
-        <main class="pub-list">
+        <main class="pub-main pub-list">
+            <div class="pub-list-intro">
+                <h1 class="pub-list-heading">頁面列表</h1>
+                <p class="pub-list-lead">目前站上公開的所有頁面，依建立日期由新到舊排列。</p>
+            </div>
             <div class="pub-list-table-wrap">
                 <table class="table">
                     <thead>
@@ -50,6 +61,36 @@
                 </div>
             </div>
         </main>
+
+        <footer class="pub-site-footer">
+            <div class="pub-site-footer-inner">
+                <section class="pub-site-footer-section">
+                    <h2 class="pub-site-footer-heading">關於本站</h2>
+                    <p class="pub-site-footer-text">
+                        「頁面管理功能」規格的前台展示站。所有頁面資料存放在瀏覽器本機，
+                        清除瀏覽器資料即回到初始狀態。
+                    </p>
+                </section>
+
+                <section class="pub-site-footer-section">
+                    <h2 class="pub-site-footer-heading">瀏覽</h2>
+                    <ul class="pub-site-footer-list">
+                        <li><a class="pub-site-footer-link" href="index.html">頁面列表</a></li>
+                    </ul>
+                </section>
+
+                <section class="pub-site-footer-section">
+                    <h2 class="pub-site-footer-heading">版本資訊</h2>
+                    <p class="pub-site-footer-text">
+                        模擬資料 v1.1<br>
+                        依 SRS 前台展示規格建置<br>
+                        僅供自動化驗收試作使用
+                    </p>
+                </section>
+            </div>
+
+            <p class="pub-site-footer-bottom">頁面管理模擬站 — 非正式營運站台，內容為測試用假資料</p>
+        </footer>
     </div>
 
     <script type="module" src="assets/js/pub-list.js"></script>

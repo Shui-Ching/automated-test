@@ -96,7 +96,18 @@
       "spec": "[PAG-ADM-FN-003] 後台 編輯頁面",
       "note": "testid 與 page-create 完全同一批 page-form-*／page-form-block-*（見上方 page-create 條目的定義與說明，此處不重複列理由，只重申前綴不變）。與 page-create 唯一的差異是本頁需要 `?id=` 帶入既有頁面 id 才能正常載入——找不到對應資料時視同 EX-1（資料不存在或已被刪除）導回頁面列表，所以契約檢查不能沿用其他頁面『無資料 + 已登入』的最小起始狀態，網址固定帶一個假 id、`seed` 欄位帶一筆同 id 的種子資料，contract-check.spec.ts 讀這個欄位（`page.seed ?? []`）而不是寫死空陣列。",
       "seed": [
-        { "id": "contract-check-page", "name": "契約檢查用頁面", "createdDate": "2026-01-01", "blocks": [{ "layout": "image-left", "image": "img-contract-check", "caption": "契約檢查用圖說" }] }
+        {
+          "id": "contract-check-page",
+          "name": "契約檢查用頁面",
+          "createdDate": "2026-01-01",
+          "blocks": [
+            {
+              "layout": "image-left",
+              "image": "img-contract-check",
+              "caption": "契約檢查用圖說"
+            }
+          ]
+        }
       ],
       "testids": {
         "page-form-logout": "登出按鈕",
@@ -140,6 +151,7 @@
       "spec": "[PUB-WEB-FN-001] 前台 前台頁面列表",
       "note": "免登入頁面（NFR-003），不需 seedAdmin 帶入 session，但仍可用 seedAdmin(page, []) 寫入 admin-pages 這把前後台共用的資料 key（會多寫一筆不影響前台的 admin-session，前台不讀取）。無資料時落入查無資料狀態，`pub-list-empty` 因此保證存在。",
       "testids": {
+        "pub-logo": "前台頁首 logo，連回 index.html。依 NFR-003，前台頁首不含任何後台入口",
         "pub-list-body": "表格 tbody，資料列與查無資料列都渲染在這底下",
         "pub-list-empty": "查無資料列（渲染於 tbody 內的單一 td，非獨立元素）",
         "pub-list-total": "總筆數",
@@ -161,9 +173,23 @@
       "spec": "[PUB-WEB-FN-002] 前台 頁面內容顯示",
       "note": "免登入頁面（NFR-003）。與 page-edit 同理，本頁需要 `?id=` 對應到一筆存在的資料才不會被異常流程 1（資料不存在或已被刪除）導回列表，因此網址固定帶一個假 id、`seed` 欄位帶一筆同 id 的種子資料。`pub-detail-block-image`／`pub-detail-block-caption`／`pub-detail-content-section`／`pub-detail-note-section`／`pub-detail-prev`／`pub-detail-next` 皆為條件式渲染或條件式 hidden，見對應功能測試的實際情境，此處只保證固定存在的殼層元素。",
       "seed": [
-        { "id": "contract-check-pub-page", "name": "契約檢查用前台頁面", "createdDate": "2026-01-01", "blocks": [{ "layout": "image-left", "image": "img-contract-check", "caption": "契約檢查用圖說" }], "content": "<p>契約檢查用內容</p>", "note": "契約檢查用補充說明" }
+        {
+          "id": "contract-check-pub-page",
+          "name": "契約檢查用前台頁面",
+          "createdDate": "2026-01-01",
+          "blocks": [
+            {
+              "layout": "image-left",
+              "image": "img-contract-check",
+              "caption": "契約檢查用圖說"
+            }
+          ],
+          "content": "<p>契約檢查用內容</p>",
+          "note": "契約檢查用補充說明"
+        }
       ],
       "testids": {
+        "pub-logo": "前台頁首 logo，連回 index.html。依 NFR-003，前台頁首不含任何後台入口",
         "pub-detail-toast": "異常提示 Toast（資料不存在或已被刪除）。無訊息時 hidden",
         "pub-detail-name": "頁面名稱（主標題）",
         "pub-detail-date": "建立日期",

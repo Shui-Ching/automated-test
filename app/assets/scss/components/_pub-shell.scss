@@ -1,24 +1,151 @@
+@use 'sass:color';
 @use '../variables' as *;
 
-// 前台共用外框。原本這幾條住在 pages/_pub-list.scss，但 pub-detail.html 用的是同一層 .pub-page，
-// 是共用元件放錯層。本次只做原樣搬移，樣式規則一個字都沒改。
+// 前台共用外框：頁首（logo）、內容區寬度上限、頁尾基本資訊。
+// 與後台的差異是刻意的——前台是給一般使用者看的展示站，用深藍滿版頁首與金色點綴拉出品牌感；
+// 後台走白底側欄，以操作密度優先（見 components/_admin-shell.scss）。
 
 .pub-page {
+    display: flex;
+    flex-direction: column;
     min-height: 100vh;
     background-color: $gray-50;
 }
 
+// --- 頁首 ---
+
 .pub-topbar {
+    background-color: $color-primary;
+    border-bottom: 2px solid $color-accent;
+}
+
+.pub-topbar-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-md;
+    max-width: $container-pub;
+    margin: 0 auto;
     padding: $spacing-md $spacing-2xl;
-    background-color: $gray-0;
-    border-bottom: 1px solid $gray-100;
 
     @media (max-width: $bp-sm-down) {
         padding: $spacing-md $spacing-lg;
     }
 }
 
-.pub-topbar-title {
-    font-size: $font-size-xl;
+// logo 是回首頁的導覽連結，不是標題，所以頁面 h1 留在 <main> 裡
+.pub-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-sm;
+    color: $gray-0;
+    font-size: $font-size-lg;
     font-weight: $font-weight-bold;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+
+    &:hover .pub-logo-mark {
+        transform: rotate(45deg);
+    }
+}
+
+// 標記本身不帶資訊，資訊在旁邊的文字，所以在 HTML 標 aria-hidden
+.pub-logo-mark {
+    width: 20px;
+    height: 20px;
+    border: 3px solid $color-accent;
+    border-radius: $radius-tag;
+    transition: transform 0.2s ease;
+}
+
+.pub-logo-text-em {
+    color: $color-accent;
+    font-weight: $font-weight-bold;
+}
+
+// 前台不提供任何後台入口（NFR-003），頁首右側只放中性版本標記
+.pub-topbar-meta {
+    font-size: $font-size-xs;
+    color: color.mix($gray-0, $color-primary, 72%);
+}
+
+// --- 內容區 ---
+// flex: 1 讓內容不滿一屏時頁尾仍貼在視窗底部
+
+.pub-main {
+    flex: 1;
+    width: 100%;
+    max-width: $container-pub;
+    margin: 0 auto;
+}
+
+// --- 頁尾 ---
+
+.pub-site-footer {
+    background-color: $color-primary-dark;
+    color: color.mix($gray-0, $color-primary-dark, 80%);
+}
+
+.pub-site-footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-2xl;
+    max-width: $container-pub;
+    margin: 0 auto;
+    padding: $spacing-2xl;
+
+    @media (max-width: $bp-sm-down) {
+        gap: $spacing-lg;
+        padding: $spacing-lg;
+    }
+}
+
+.pub-site-footer-section {
+    flex: 1 1 220px;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+}
+
+.pub-site-footer-heading {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    letter-spacing: 0.08em;
+    color: $color-accent;
+}
+
+.pub-site-footer-text {
+    font-size: $font-size-xs;
+    line-height: $line-height-base;
+}
+
+.pub-site-footer-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+    list-style: none;
+}
+
+.pub-site-footer-link {
+    font-size: $font-size-xs;
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+        color: $gray-0;
+        text-decoration: underline;
+    }
+}
+
+.pub-site-footer-bottom {
+    max-width: $container-pub;
+    margin: 0 auto;
+    padding: $spacing-md $spacing-2xl;
+    border-top: 1px solid color.mix($gray-0, $color-primary-dark, 16%);
+    font-size: $font-size-xs;
+
+    @media (max-width: $bp-sm-down) {
+        padding: $spacing-md $spacing-lg;
+    }
 }
