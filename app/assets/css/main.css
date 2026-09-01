@@ -760,9 +760,7 @@ select {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 48px;
+  padding: 32px;
 }
 @media (max-width: 575.98px) {
   .page-form {
@@ -779,6 +777,11 @@ select {
 .page-form-editor {
   border-radius: 6px;
   overflow: hidden;
+}
+
+.page-form-editor-toolbar,
+.page-form-editor-body {
+  background-color: #FFFFFF;
 }
 
 .page-form-editor-body {

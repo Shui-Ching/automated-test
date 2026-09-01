@@ -1,12 +1,11 @@
 @use '../variables' as *;
 
+// 與後台列表一致，不設寬度上限走滿版
 .page-form {
     display: flex;
     flex-direction: column;
     gap: $spacing-lg;
-    max-width: 720px;
-    margin: 0 auto;
-    padding: $spacing-2xl;
+    padding: $spacing-xl;
 
     @media (max-width: $bp-sm-down) {
         padding: $spacing-lg;
@@ -24,6 +23,13 @@
 .page-form-editor {
     border-radius: $radius-input;
     overflow: hidden;
+}
+
+// Quill 的 snow 主題只畫框線不填底色，不補的話會透出頁面底色（$gray-50）
+// 而跟旁邊白底的 .field-input 對不齊。工具列與輸入區都要補。
+.page-form-editor-toolbar,
+.page-form-editor-body {
+    background-color: $gray-0;
 }
 
 .page-form-editor-body {
