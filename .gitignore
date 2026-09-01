@@ -22,3 +22,6 @@ secrets/
 Thumbs.db
 .vscode/
 .idea/
+
+# Claude Code 個人設定與 skill：依資產邊界規則不進本專案 repo
+.claude/
