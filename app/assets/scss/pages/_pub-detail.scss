@@ -93,10 +93,11 @@
     white-space: pre-line; // 保留原輸入之換行
 }
 
-// --- 上一則／返回列表／下一則 ---
+// --- 上一則／返回列表／下一則（頁面切換列）---
 // 用 grid 三欄固定各自位置，任一則因首末筆或單筆而隱藏時，其餘元件位置不受影響。
+// 名稱是 pager 不是 footer：這一組是頁面之間的導覽，容器標籤是 <nav>（見 pub-detail.html）。
 
-.pub-detail-footer {
+.pub-detail-pager {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
@@ -105,14 +106,14 @@
     border-top: 1px solid $gray-100;
 }
 
-.pub-detail-footer-prev {
+.pub-detail-pager-prev {
     justify-self: start;
 }
 
-.pub-detail-footer-return {
+.pub-detail-pager-return {
     justify-self: center;
 }
 
-.pub-detail-footer-next {
+.pub-detail-pager-next {
     justify-self: end;
 }

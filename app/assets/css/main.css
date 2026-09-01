@@ -1051,7 +1051,7 @@ select {
   white-space: pre-line;
 }
 
-.pub-detail-footer {
+.pub-detail-pager {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
@@ -1060,14 +1060,14 @@ select {
   border-top: 1px solid #EDEFF3;
 }
 
-.pub-detail-footer-prev {
+.pub-detail-pager-prev {
   justify-self: start;
 }
 
-.pub-detail-footer-return {
+.pub-detail-pager-return {
   justify-self: center;
 }
 
-.pub-detail-footer-next {
+.pub-detail-pager-next {
   justify-self: end;
 }
