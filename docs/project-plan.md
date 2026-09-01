@@ -88,7 +88,7 @@ project-plan.md          ← 本檔
 
 ## 3. 分階段任務
 
-### Phase 0 — 基礎建設與決策（狀態：進行中，0.1～0.5、0.7 已完成，待 0.6）
+### Phase 0 — 基礎建設與決策（狀態：全部完成）
 
 | # | 任務 | 產出／驗收 |
 | :-- | :--- | :--- |
@@ -97,7 +97,7 @@ project-plan.md          ← 本檔
 | 0.3 | ~~安裝 Playwright，跑通一條 hello-world 測試~~ **已完成** | `npx playwright test` 1 passed；並已刻意改壞標題確認測試會紅、再還原，證明斷言有辨識力 |
 | 0.4 | ~~逾時的可注入設計~~ **已完成**：`app/assets/js/session-store.js` 支援 `?sessionTimeout=<秒>`，正式值 1800 秒。**NFR-004 的寫入失敗開關留待 Phase 2 做 `data-store.js` 時一併處理** | — |
 | 0.5 | ~~定義 `ac-coverage.json` 的派工規則（前端／後端／設計＋前端三類）~~ **已完成**：`tests/contract/ac-coverage.json` 60 條 AC／展開案例全部有歸屬，分類規則依第 179～186 行落地；`dispatch-reporter.ts` 的 `resolveUnit()` 已改成依 test title 查此表，不再硬編「其餘也是前端」；已用刻意植入的登入錯誤文案 bug 驗證查表結果為「前端」，還原後 `git diff app/assets/js/login.js` 乾淨 | 60 條 AC 全部有歸屬 |
-| 0.6 | PM 修正 SRS 的 NFR 編號錯誤（見風險 R-5） | 功能檔引用的 NFR 編號對得上 3.2 章 |
+| 0.6 | ~~PM 修正 SRS 的 NFR 編號錯誤~~ **已完成**（見風險 R-5）：`3.2_非功能需求.md` 的 NFR-001 適用功能移除 `[AUT-ADM-FN-001]`（登入頁本身不受「須登入才能存取」規則約束，避免自我矛盾）；6 份功能規格檔（`AUT-ADM-FN-001`、`PAG-ADM-FN-001/002/003`、`PUB-WEB-FN-001/002`）的 NFR 引用改為 NFR-004→001、005→002、006→003、007→004，全部對得上 3.2 章實際編號 | 功能檔引用的 NFR 編號對得上 3.2 章 |
 | 0.7 | ~~開啟 GitHub Pages 並確認部署~~ **已完成**：repo Settings → Pages 設為 Source: GitHub Actions；新增 `.github/workflows/pages.yml` 把 `app/` 目錄部署為 Pages 根目錄（與 `npm run dev` 的服務根目錄一致）。**部署與 E2E 兩條 workflow push 後皆執行成功**（run id 33375590144、33375590119）。用 `curl -I` 逐一驗證 `https://shui-ching.github.io/automated-test/`、`/admin/login.html`、`/assets/css/main.css`、`/assets/js/{session-store,login,auth-guard}.js` 皆回 200，證明相對路徑在 `/automated-test/` 子路徑下正確解析，沒有踩到風險 R-6 的絕對路徑問題 | 用實際的 Pages 網址開一次，確認 CSS 與 JS 都載入成功（子路徑的相對路徑問題只有在線上才驗得出來） |
 
 - **時間**：1～2 小時（0.6 由 PM 端做，約 10 分鐘）
@@ -349,7 +349,7 @@ repo 已設為 public，Pages 直接可用：
 ### R-4 — 帳密寫死在前端是模擬，不是權限控管（資安；repo 已確認為 public，此為已知並接受的決定）
 `Admin` / `Admin1234` 寫在前端 JS，開 devtools 就看得到，也可以直接改 localStorage 的登入旗標繞過。作為模擬資料版本可以接受，但**必須記錄下來，不可以帶進 Phase 5 的真後端**。repo 已設為 public，這是已確認的決定——此階段沒有任何真實資料，公開無實質損失。要守住的是後續：這組密碼不得用於任何真實服務，且 Phase 5 接真後端時必須整支刪除（見第 6 節）。
 
-### R-5 — SRS 的 NFR 編號對不上（PM 端修正）
+### R-5 — SRS 的 NFR 編號對不上（PM 端修正，**已解決，2026-09-01**）
 `3.2_非功能需求.md` 只定義了 NFR-001～004，但功能檔引用的是 NFR-004／005／006／007，整組差三號：
 
 | 功能檔引用 | 實際應為 | 內容 |
@@ -361,7 +361,7 @@ repo 已設為 public，Pages 直接可用：
 
 另外同一張表的「適用功能」欄，把 `[AUT-ADM-FN-001]` 列進 NFR-001（後台所有頁面須具備登入狀態方可存取）。照字面套用會變成「登入頁本身也要先登入才能開」，自動產生的 AC→NFR 對照會生出一條矛盾的測試。登入頁應從 NFR-001 的適用範圍排除。
 
-不修的話，測試報告要回溯「這條 AC 對應哪條 NFR」時會全部斷鏈。這是 PM 端一分鐘的編輯，你就是 PM，要不要我改請你說一聲。
+不修的話，測試報告要回溯「這條 AC 對應哪條 NFR」時會全部斷鏈。**已修正**：`3.2_非功能需求.md` 與 6 份功能規格檔（`AUT-ADM-FN-001`、`PAG-ADM-FN-001/002/003`、`PUB-WEB-FN-001/002`）皆已改為正確編號，NFR-001 適用功能已移除 `[AUT-ADM-FN-001]`。
 
 ### R-6 — 規格檔名含中括號與空白
 `[PAG-ADM-FN-001] 後台 頁面列表.md` 這種檔名，在 glob pattern 裡 `[...]` 是字元集語法，在 shell 裡空白要跳脫，寫任何自動化腳本（例如把 AC 從規格抽出來對照測試結果）都會踩到。
