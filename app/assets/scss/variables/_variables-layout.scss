@@ -13,3 +13,8 @@ $radius-card:   8px;
 $radius-button: 6px;
 $radius-input:  6px;
 $radius-tag:    4px;
+
+// 容器寬度。這裡不是斷點，是外框上限，所以不受「斷點只能從五級挑」的約束，
+// 但一樣登記成具名變數，不在頁面 partial 就地寫數字。
+$container-pub:         1400px;   // 前台外框上限。後台刻意不設上限（滿版）
+$admin-sidebar-width:    220px;   // 後台左側選單寬度

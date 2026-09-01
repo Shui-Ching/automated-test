@@ -1,27 +1,6 @@
 @use '../variables' as *;
 
-.admin-page {
-    min-height: 100vh;
-    background-color: $gray-50;
-}
-
-.admin-topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: $spacing-md $spacing-2xl;
-    background-color: $gray-0;
-    border-bottom: 1px solid $gray-100;
-
-    @media (max-width: $bp-sm-down) {
-        padding: $spacing-md $spacing-lg;
-    }
-}
-
-.admin-topbar-title {
-    font-size: $font-size-xl;
-    font-weight: $font-weight-bold;
-}
+// 外框（.admin-page／.admin-topbar）已搬到 components/_admin-shell.scss，本檔只留頁面自己的樣式。
 
 .page-list {
     display: flex;

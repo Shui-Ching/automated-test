@@ -1,24 +1,6 @@
 @use '../variables' as *;
 
-.pub-page {
-    min-height: 100vh;
-    background-color: $gray-50;
-}
-
-.pub-topbar {
-    padding: $spacing-md $spacing-2xl;
-    background-color: $gray-0;
-    border-bottom: 1px solid $gray-100;
-
-    @media (max-width: $bp-sm-down) {
-        padding: $spacing-md $spacing-lg;
-    }
-}
-
-.pub-topbar-title {
-    font-size: $font-size-xl;
-    font-weight: $font-weight-bold;
-}
+// 外框（.pub-page／.pub-topbar）已搬到 components/_pub-shell.scss，本檔只留頁面自己的樣式。
 
 .pub-list {
     display: flex;

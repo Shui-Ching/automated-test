@@ -2,6 +2,8 @@
 // 順序即層級：variables → reset → base → 共用元件 → 頁面
 @use 'reset';
 @use 'base/base-form';
+@use 'components/pub-shell';   // 前台共用外框：頁首 logo、寬度上限、頁尾
+@use 'components/admin-shell'; // 後台共用外框：左側選單、頁首、滿版內容區
 @use 'components/button';
 @use 'components/table';
 @use 'components/dialog';

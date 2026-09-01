@@ -1,0 +1,29 @@
+@use '../variables' as *;
+
+// 後台共用外框。原本這幾條住在 pages/_page-list.scss，但 page-create、page-edit 也在用，
+// 是共用元件放錯層。本次只做原樣搬移，樣式規則一個字都沒改。
+//
+// 不套用於 admin/login.html——登入頁是尚未取得 session 的狀態，沒有這層外框。
+
+.admin-page {
+    min-height: 100vh;
+    background-color: $gray-50;
+}
+
+.admin-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-md $spacing-2xl;
+    background-color: $gray-0;
+    border-bottom: 1px solid $gray-100;
+
+    @media (max-width: $bp-sm-down) {
+        padding: $spacing-md $spacing-lg;
+    }
+}
+
+.admin-topbar-title {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+}

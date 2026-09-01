@@ -1,0 +1,24 @@
+@use '../variables' as *;
+
+// 前台共用外框。原本這幾條住在 pages/_pub-list.scss，但 pub-detail.html 用的是同一層 .pub-page，
+// 是共用元件放錯層。本次只做原樣搬移，樣式規則一個字都沒改。
+
+.pub-page {
+    min-height: 100vh;
+    background-color: $gray-50;
+}
+
+.pub-topbar {
+    padding: $spacing-md $spacing-2xl;
+    background-color: $gray-0;
+    border-bottom: 1px solid $gray-100;
+
+    @media (max-width: $bp-sm-down) {
+        padding: $spacing-md $spacing-lg;
+    }
+}
+
+.pub-topbar-title {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+}
