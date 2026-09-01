@@ -13,98 +13,118 @@
 </head>
 <body>
     <div class="admin-page">
-        <header class="admin-topbar">
-            <h1 class="admin-topbar-title">頁面列表</h1>
-            <button
-                type="button"
-                class="button button--secondary js-logout"
-                data-testid="page-list-logout">登出</button>
-        </header>
+        <aside class="admin-sidebar">
+            <div class="admin-sidebar-brand">
+                <span class="admin-sidebar-brand-name">頁面管理系統</span>
+                <span class="admin-sidebar-brand-role">管理後台</span>
+            </div>
 
-        <main class="page-list">
-            <section class="page-list-search" aria-label="篩選條件">
-                <div class="page-list-search-fields">
-                    <div class="field">
-                        <label class="field-label" for="page-list-search-name">頁面名稱</label>
-                        <input
-                            class="field-input js-search-name"
-                            id="page-list-search-name"
-                            type="text"
-                            placeholder="請輸入關鍵字"
-                            data-testid="page-list-search-name">
-                    </div>
+            <nav aria-label="後台主選單">
+                <ul class="admin-sidebar-nav">
+                    <li><a class="admin-sidebar-link" href="page-list.html" data-testid="admin-nav-page-list" aria-current="page">頁面列表</a></li>
+                    <li><a class="admin-sidebar-link" href="page-create.html" data-testid="admin-nav-page-create">新增頁面</a></li>
+                </ul>
+            </nav>
+        </aside>
 
-                    <div class="field">
-                        <label class="field-label" for="page-list-search-date-from">建立日期</label>
-                        <div class="page-list-search-date-range">
+        <div class="admin-body">
+            <header class="admin-topbar">
+                <h1 class="admin-topbar-title">頁面列表</h1>
+                <!-- 環境標記：本站操作的是瀏覽器本機的模擬資料，不影響任何正式資料 -->
+                <span class="admin-topbar-badge">測試後台</span>
+                <div class="admin-topbar-actions">
+                    <button
+                        type="button"
+                        class="button button--secondary js-logout"
+                        data-testid="page-list-logout">登出</button>
+                </div>
+            </header>
+
+            <main class="page-list">
+                <section class="page-list-search" aria-label="篩選條件">
+                    <div class="page-list-search-fields">
+                        <div class="field">
+                            <label class="field-label" for="page-list-search-name">頁面名稱</label>
                             <input
-                                class="field-input js-search-date-from"
-                                id="page-list-search-date-from"
-                                type="date"
-                                data-testid="page-list-search-date-from">
-                            <span class="page-list-search-date-sep" aria-hidden="true">～</span>
-                            <input
-                                class="field-input js-search-date-to"
-                                id="page-list-search-date-to"
-                                type="date"
-                                aria-label="建立日期結束"
-                                data-testid="page-list-search-date-to">
+                                class="field-input js-search-name"
+                                id="page-list-search-name"
+                                type="text"
+                                placeholder="請輸入關鍵字"
+                                data-testid="page-list-search-name">
                         </div>
-                        <p class="field-error js-search-date-error" data-testid="page-list-search-date-error" hidden></p>
+
+                        <div class="field">
+                            <label class="field-label" for="page-list-search-date-from">建立日期</label>
+                            <div class="page-list-search-date-range">
+                                <input
+                                    class="field-input js-search-date-from"
+                                    id="page-list-search-date-from"
+                                    type="date"
+                                    data-testid="page-list-search-date-from">
+                                <span class="page-list-search-date-sep" aria-hidden="true">～</span>
+                                <input
+                                    class="field-input js-search-date-to"
+                                    id="page-list-search-date-to"
+                                    type="date"
+                                    aria-label="建立日期結束"
+                                    data-testid="page-list-search-date-to">
+                            </div>
+                            <p class="field-error js-search-date-error" data-testid="page-list-search-date-error" hidden></p>
+                        </div>
+                    </div>
+
+                    <div class="page-list-search-actions">
+                        <button type="button" class="button button--secondary js-search-clear" data-testid="page-list-search-clear">清除</button>
+                        <button type="button" class="button button--primary js-search-submit" data-testid="page-list-search-submit">查詢</button>
+                    </div>
+                </section>
+
+                <div class="page-list-toolbar">
+                    <a class="button button--primary" href="page-create.html" data-testid="page-list-create">新增</a>
+                </div>
+
+                <p class="toast js-toast" role="status" data-testid="page-list-toast" hidden></p>
+
+                <div class="page-list-table-wrap">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>序號</th>
+                                <th>頁面名稱</th>
+                                <th>建立日期</th>
+                                <th>圖文區塊</th>
+                                <th aria-hidden="true"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="js-table-body" data-testid="page-list-body"></tbody>
+                    </table>
+                </div>
+
+                <div class="page-list-pagination">
+                    <div class="page-list-pagination-size">
+                        <label for="page-list-page-size">每頁</label>
+                        <select class="field-input js-page-size" id="page-list-page-size" data-testid="page-list-page-size">
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                        </select>
+                        <span>筆，共 <span class="js-total" data-testid="page-list-total">0</span> 筆</span>
+                    </div>
+
+                    <div class="page-list-pagination-nav">
+                        <button type="button" class="button button--secondary js-page-prev" data-testid="page-list-page-prev">上一頁</button>
+                        <input
+                            class="field-input js-page-input"
+                            type="number"
+                            min="1"
+                            aria-label="跳至頁數"
+                            data-testid="page-list-page-input">
+                        <span class="js-page-total" data-testid="page-list-page-total">/ 1</span>
+                        <button type="button" class="button button--secondary js-page-next" data-testid="page-list-page-next">下一頁</button>
                     </div>
                 </div>
-
-                <div class="page-list-search-actions">
-                    <button type="button" class="button button--secondary js-search-clear" data-testid="page-list-search-clear">清除</button>
-                    <button type="button" class="button button--primary js-search-submit" data-testid="page-list-search-submit">查詢</button>
-                </div>
-            </section>
-
-            <div class="page-list-toolbar">
-                <a class="button button--primary" href="page-create.html" data-testid="page-list-create">新增</a>
-            </div>
-
-            <p class="toast js-toast" role="status" data-testid="page-list-toast" hidden></p>
-
-            <div class="page-list-table-wrap">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>序號</th>
-                            <th>頁面名稱</th>
-                            <th>建立日期</th>
-                            <th>圖文區塊</th>
-                            <th aria-hidden="true"></th>
-                        </tr>
-                    </thead>
-                    <tbody class="js-table-body" data-testid="page-list-body"></tbody>
-                </table>
-            </div>
-
-            <div class="page-list-pagination">
-                <div class="page-list-pagination-size">
-                    <label for="page-list-page-size">每頁</label>
-                    <select class="field-input js-page-size" id="page-list-page-size" data-testid="page-list-page-size">
-                        <option value="10">10</option>
-                        <option value="20">20</option>
-                        <option value="50">50</option>
-                    </select>
-                    <span>筆，共 <span class="js-total" data-testid="page-list-total">0</span> 筆</span>
-                </div>
-
-                <div class="page-list-pagination-nav">
-                    <button type="button" class="button button--secondary js-page-prev" data-testid="page-list-page-prev">上一頁</button>
-                    <input
-                        class="field-input js-page-input"
-                        type="number"
-                        min="1"
-                        aria-label="跳至頁數"
-                        data-testid="page-list-page-input">
-                    <span class="js-page-total" data-testid="page-list-page-total">/ 1</span>
-                    <button type="button" class="button button--secondary js-page-next" data-testid="page-list-page-next">下一頁</button>
-                </div>
-            </div>
-        </main>
+            </main>
+        </div>
     </div>
 
     <dialog class="dialog js-delete-dialog" data-testid="page-list-delete-dialog">

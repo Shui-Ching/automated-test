@@ -18,81 +18,103 @@
 </head>
 <body>
     <div class="admin-page">
-        <header class="admin-topbar">
-            <h1 class="admin-topbar-title">編輯頁面</h1>
-            <button
-                type="button"
-                class="button button--secondary js-logout"
-                data-testid="page-form-logout">登出</button>
-        </header>
+        <aside class="admin-sidebar">
+            <div class="admin-sidebar-brand">
+                <span class="admin-sidebar-brand-name">頁面管理系統</span>
+                <span class="admin-sidebar-brand-role">管理後台</span>
+            </div>
 
-        <main class="page-form">
-            <p class="toast js-toast" role="status" data-testid="page-form-toast" hidden></p>
+            <!-- 編輯頁沒有對應的選單項，兩項都不帶 aria-current：
+                 aria-current="page" 的語意是「這一項就是目前這一頁」，標在列表上會讓螢幕閱讀器唸錯 -->
+            <nav aria-label="後台主選單">
+                <ul class="admin-sidebar-nav">
+                    <li><a class="admin-sidebar-link" href="page-list.html" data-testid="admin-nav-page-list">頁面列表</a></li>
+                    <li><a class="admin-sidebar-link" href="page-create.html" data-testid="admin-nav-page-create">新增頁面</a></li>
+                </ul>
+            </nav>
+        </aside>
 
-            <form class="page-form-body js-form" novalidate>
-                <div class="field">
-                    <label class="field-label" for="page-form-name">頁面名稱</label>
-                    <input
-                        class="field-input js-name"
-                        id="page-form-name"
-                        type="text"
-                        placeholder="請輸入頁面名稱"
-                        data-testid="page-form-name">
-                    <p class="field-error js-name-error" data-testid="page-form-name-error" hidden></p>
-                </div>
-
-                <div class="field">
-                    <label class="field-label" for="page-form-date">建立日期</label>
-                    <input
-                        class="field-input js-date"
-                        id="page-form-date"
-                        type="date"
-                        data-testid="page-form-date">
-                    <p class="field-error js-date-error" data-testid="page-form-date-error" hidden></p>
-                </div>
-
-                <div class="field">
-                    <span class="field-label">頁面內容</span>
-                    <div class="page-form-editor">
-                        <div id="page-form-content-toolbar" class="page-form-editor-toolbar">
-                            <button type="button" class="ql-bold" data-testid="page-form-content-bold" aria-label="粗體"></button>
-                            <button type="button" class="ql-italic" data-testid="page-form-content-italic" aria-label="斜體"></button>
-                            <button type="button" class="ql-list" value="bullet" data-testid="page-form-content-list" aria-label="項目清單"></button>
-                            <button type="button" class="ql-link" data-testid="page-form-content-link" aria-label="超連結"></button>
-                            <button type="button" class="ql-image" data-testid="page-form-content-image" aria-label="插入圖片"></button>
-                        </div>
-                        <div id="page-form-content-editor" class="page-form-editor-body js-content-editor" data-testid="page-form-content-editor"></div>
-                    </div>
-                </div>
-
-                <div class="field">
-                    <label class="field-label" for="page-form-note">補充說明</label>
-                    <textarea
-                        class="field-input js-note"
-                        id="page-form-note"
-                        rows="5"
-                        placeholder="請輸入補充說明"
-                        data-testid="page-form-note"></textarea>
-                    <div class="page-form-note-meta">
-                        <p class="field-error js-note-error" data-testid="page-form-note-error" hidden></p>
-                        <span class="page-form-note-count js-note-count" data-testid="page-form-note-count">0 / 500</span>
-                    </div>
-                </div>
-
-                <section class="page-form-blocks" aria-label="圖文區塊">
-                    <div class="page-form-blocks-list js-blocks-list" data-testid="page-form-blocks-list"></div>
+        <div class="admin-body">
+            <header class="admin-topbar">
+                <h1 class="admin-topbar-title">編輯頁面</h1>
+                <!-- 環境標記：本站操作的是瀏覽器本機的模擬資料，不影響任何正式資料 -->
+                <span class="admin-topbar-badge">測試後台</span>
+                <div class="admin-topbar-actions">
                     <button
                         type="button"
-                        class="button button--secondary js-blocks-add"
-                        data-testid="page-form-blocks-add">新增圖文區塊</button>
-                </section>
-
-                <div class="page-form-actions">
-                    <a class="button button--secondary" href="page-list.html" data-testid="page-form-cancel">返回</a>
-                    <button type="submit" class="button button--primary js-save" data-testid="page-form-save">儲存</button>
+                        class="button button--secondary js-logout"
+                        data-testid="page-form-logout">登出</button>
                 </div>
-            </form>
-        </main>
+            </header>
+
+            <main class="page-form">
+                <p class="toast js-toast" role="status" data-testid="page-form-toast" hidden></p>
+
+                <form class="page-form-body js-form" novalidate>
+                    <div class="field">
+                        <label class="field-label" for="page-form-name">頁面名稱</label>
+                        <input
+                            class="field-input js-name"
+                            id="page-form-name"
+                            type="text"
+                            placeholder="請輸入頁面名稱"
+                            data-testid="page-form-name">
+                        <p class="field-error js-name-error" data-testid="page-form-name-error" hidden></p>
+                    </div>
+
+                    <div class="field">
+                        <label class="field-label" for="page-form-date">建立日期</label>
+                        <input
+                            class="field-input js-date"
+                            id="page-form-date"
+                            type="date"
+                            data-testid="page-form-date">
+                        <p class="field-error js-date-error" data-testid="page-form-date-error" hidden></p>
+                    </div>
+
+                    <div class="field">
+                        <span class="field-label">頁面內容</span>
+                        <div class="page-form-editor">
+                            <div id="page-form-content-toolbar" class="page-form-editor-toolbar">
+                                <button type="button" class="ql-bold" data-testid="page-form-content-bold" aria-label="粗體"></button>
+                                <button type="button" class="ql-italic" data-testid="page-form-content-italic" aria-label="斜體"></button>
+                                <button type="button" class="ql-list" value="bullet" data-testid="page-form-content-list" aria-label="項目清單"></button>
+                                <button type="button" class="ql-link" data-testid="page-form-content-link" aria-label="超連結"></button>
+                                <button type="button" class="ql-image" data-testid="page-form-content-image" aria-label="插入圖片"></button>
+                            </div>
+                            <div id="page-form-content-editor" class="page-form-editor-body js-content-editor" data-testid="page-form-content-editor"></div>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="field-label" for="page-form-note">補充說明</label>
+                        <textarea
+                            class="field-input js-note"
+                            id="page-form-note"
+                            rows="5"
+                            placeholder="請輸入補充說明"
+                            data-testid="page-form-note"></textarea>
+                        <div class="page-form-note-meta">
+                            <p class="field-error js-note-error" data-testid="page-form-note-error" hidden></p>
+                            <span class="page-form-note-count js-note-count" data-testid="page-form-note-count">0 / 500</span>
+                        </div>
+                    </div>
+
+                    <section class="page-form-blocks" aria-label="圖文區塊">
+                        <div class="page-form-blocks-list js-blocks-list" data-testid="page-form-blocks-list"></div>
+                        <button
+                            type="button"
+                            class="button button--secondary js-blocks-add"
+                            data-testid="page-form-blocks-add">新增圖文區塊</button>
+                    </section>
+
+                    <div class="page-form-actions">
+                        <a class="button button--secondary" href="page-list.html" data-testid="page-form-cancel">返回</a>
+                        <button type="submit" class="button button--primary js-save" data-testid="page-form-save">儲存</button>
+                    </div>
+                </form>
+            </main>
+        </div>
     </div>
 
     <template class="js-block-template">

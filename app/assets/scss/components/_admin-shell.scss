@@ -1,20 +1,140 @@
+@use 'sass:color';
 @use '../variables' as *;
 
-// 後台共用外框。原本這幾條住在 pages/_page-list.scss，但 page-create、page-edit 也在用，
-// 是共用元件放錯層。本次只做原樣搬移，樣式規則一個字都沒改。
+// 後台共用外框：左側選單、頁首（頁面標題＋環境標記＋登出）、滿版內容區。
+// 原本這幾條散在 pages/_page-list.scss，但 page-create、page-edit 也在用，
+// 是共用元件放錯層；加側邊選單時一併搬到 components/。
 //
-// 不套用於 admin/login.html——登入頁是尚未取得 session 的狀態，沒有這層外框。
+// 不套用於 admin/login.html——登入頁是尚未取得 session 的狀態，沒有選單也沒有登出。
 
 .admin-page {
+    display: grid;
+    grid-template-columns: $admin-sidebar-width 1fr;
     min-height: 100vh;
     background-color: $gray-50;
+
+    // 平板橫向以下改成上下堆疊，選單收成一列水平標籤。
+    // grid-template-rows 必須明寫 auto 1fr：不寫的話兩列都是 auto，
+    // 而 min-height: 100vh 多出來的高度會平均分給兩列，選單下方會空出一大塊。
+    @media (max-width: $bp-lg-down) {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+}
+
+// --- 左側選單 ---
+// 用 grid 欄位而不是 position: fixed：固定定位的側欄會蓋在內容上方攔截點擊，
+// Playwright 會以「element intercepts pointer events」失敗，而且是難查的失敗。
+
+.admin-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    padding: $spacing-lg $spacing-md;
+    background-color: $color-primary;
+    color: color.mix($gray-0, $color-primary, 78%);
+
+    @media (max-width: $bp-lg-down) {
+        position: static;
+        height: auto;
+        align-self: stretch;
+        flex-direction: row;
+        align-items: center;
+        gap: $spacing-md;
+        padding: $spacing-sm $spacing-lg;
+        overflow-x: auto;
+    }
+}
+
+.admin-sidebar-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0 $spacing-sm;
+    white-space: nowrap;
+
+    @media (max-width: $bp-lg-down) {
+        padding: 0;
+    }
+}
+
+.admin-sidebar-brand-name {
+    font-size: $font-size-base;
+    font-weight: $font-weight-bold;
+    color: $gray-0;
+}
+
+.admin-sidebar-brand-role {
+    font-size: $font-size-xs;
+    color: color.mix($gray-0, $color-primary, 62%);
+}
+
+.admin-sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+    list-style: none;
+
+    @media (max-width: $bp-lg-down) {
+        flex-direction: row;
+        gap: $spacing-sm;
+    }
+}
+
+.admin-sidebar-link {
+    display: block;
+    padding: $spacing-sm $spacing-md;
+    border-left: 3px solid transparent;
+    border-radius: $radius-button;
+    color: inherit;
+    font-size: $font-size-sm;
+    text-decoration: none;
+    white-space: nowrap;
+
+    &:hover {
+        background-color: color.mix($gray-0, $color-primary, 12%);
+        color: $gray-0;
+    }
+
+    // 目前所在頁用原生 aria-current 標示，不另創狀態 class：
+    // 這個狀態隨頁面而定、不由 JS 切換，且對螢幕閱讀器也要說得出來
+    &[aria-current='page'] {
+        background-color: color.mix($gray-0, $color-primary, 16%);
+        border-left-color: $color-accent;
+        color: $gray-0;
+        font-weight: $font-weight-medium;
+    }
+
+    @media (max-width: $bp-lg-down) {
+        border-left: 0;
+        border-bottom: 3px solid transparent;
+
+        &[aria-current='page'] {
+            border-left-color: transparent;
+            border-bottom-color: $color-accent;
+        }
+    }
+}
+
+// --- 右側主區 ---
+// min-width: 0 讓表格在窄螢幕能在自己的容器內橫向捲動，而不是把 grid 欄位撐寬
+
+.admin-body {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
 }
 
 .admin-topbar {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
-    padding: $spacing-md $spacing-2xl;
+    gap: $spacing-md;
+    padding: $spacing-md $spacing-xl;
     background-color: $gray-0;
     border-bottom: 1px solid $gray-100;
 
@@ -26,4 +146,19 @@
 .admin-topbar-title {
     font-size: $font-size-xl;
     font-weight: $font-weight-bold;
+}
+
+// 環境標記。這是模擬資料站，操作不會影響正式資料，要讓人一眼看出來
+.admin-topbar-badge {
+    padding: 2px $spacing-sm;
+    border: 1px solid $warning;
+    border-radius: $radius-tag;
+    color: $warning;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+}
+
+// 把登出推到最右，中間標題與標記維持靠左群組
+.admin-topbar-actions {
+    margin-left: auto;
 }

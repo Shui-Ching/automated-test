@@ -2,13 +2,12 @@
 
 // 外框（.admin-page／.admin-topbar）已搬到 components/_admin-shell.scss，本檔只留頁面自己的樣式。
 
+// 後台列表刻意不設寬度上限：欄位多、要一眼掃完，滿版比置中窄欄好操作
 .page-list {
     display: flex;
     flex-direction: column;
     gap: $spacing-lg;
-    max-width: 1080px;
-    margin: 0 auto;
-    padding: $spacing-2xl;
+    padding: $spacing-xl;
 
     @media (max-width: $bp-sm-down) {
         padding: $spacing-lg;
