@@ -21,6 +21,12 @@ interface DispatchRow {
     actual: string;
     unit: string;
     screenshot: string | null;
+    trace: string | null;
+}
+
+/** 絕對路徑對外部系統（GitHub Issue 等）沒有意義，一律轉成相對於 repo 根目錄的路徑。 */
+function toRelativePath(absolutePath: string): string {
+    return path.relative(process.cwd(), absolutePath).split(path.sep).join('/');
 }
 
 interface CoverageRow {
@@ -82,6 +88,7 @@ class DispatchReporter implements Reporter {
         if (result.status === 'passed') return;
 
         const screenshot = result.attachments.find((a) => a.name === 'screenshot');
+        const trace = result.attachments.find((a) => a.name === 'trace');
 
         this.rows.push({
             acId: extractAcId(test.title, test.location.file),
@@ -89,7 +96,8 @@ class DispatchReporter implements Reporter {
             expected: test.expectedStatus,
             actual: formatActual(result),
             unit: resolveUnit(test.title, test.location.file),
-            screenshot: screenshot?.path ?? null,
+            screenshot: screenshot?.path ? toRelativePath(screenshot.path) : null,
+            trace: trace?.path ? toRelativePath(trace.path) : null,
         });
     }
 
@@ -107,16 +115,23 @@ class DispatchReporter implements Reporter {
             return;
         }
 
+        const { GITHUB_SERVER_URL, GITHUB_REPOSITORY, GITHUB_RUN_ID } = process.env;
+        const runLink =
+            GITHUB_SERVER_URL && GITHUB_REPOSITORY && GITHUB_RUN_ID
+                ? `${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}`
+                : null;
+
         const lines = [
             '# 派工單',
             '',
             `本次執行結果：${result.status}，共 ${this.rows.length} 項需要處理。`,
+            ...(runLink ? ['', `執行紀錄：${runLink}`] : []),
             '',
-            '| AC 編號 | 情境 | 預期 | 實得 | 負責單位 | 截圖 |',
-            '| :--- | :--- | :--- | :--- | :--- | :--- |',
+            '| AC 編號 | 情境 | 預期 | 實得 | 負責單位 | 截圖 | trace |',
+            '| :--- | :--- | :--- | :--- | :--- | :--- | :--- |',
             ...this.rows.map(
                 (row) =>
-                    `| ${escapeCell(row.acId)} | ${escapeCell(row.scenario)} | ${escapeCell(row.expected)} | ${escapeCell(row.actual)} | ${escapeCell(row.unit)} | ${row.screenshot ? escapeCell(row.screenshot) : '（無）'} |`
+                    `| ${escapeCell(row.acId)} | ${escapeCell(row.scenario)} | ${escapeCell(row.expected)} | ${escapeCell(row.actual)} | ${escapeCell(row.unit)} | ${row.screenshot ? escapeCell(row.screenshot) : '（無）'} | ${row.trace ? escapeCell(row.trace) : '（無）'} |`
             ),
         ];
 

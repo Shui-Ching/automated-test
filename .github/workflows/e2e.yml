@@ -3,10 +3,14 @@ name: E2E
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   playwright:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
     steps:
       - uses: actions/checkout@v4
 
@@ -35,3 +39,32 @@ jobs:
             test-results/results.json
             playwright-report/
           retention-days: 14
+
+      # 只在手動觸發（workflow_dispatch）時才會真的建立 GitHub Issue，
+      # push／pull_request 觸發不會自動開單，避免洗版 public repo。
+      - name: Create dispatch issues (manual trigger only)
+        if: always() && github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          node .github/scripts/parse-dispatch.js > dispatch-issues.json
+          COUNT=$(jq 'length' dispatch-issues.json)
+          echo "待派工項目數：$COUNT"
+
+          for i in $(seq 0 $((COUNT - 1))); do
+            ITEM=$(jq -c ".[$i]" dispatch-issues.json)
+            TITLE=$(echo "$ITEM" | jq -r '.title')
+            LABEL=$(echo "$ITEM" | jq -r '.label')
+            DISPATCH_ID=$(echo "$ITEM" | jq -r '.dispatchId')
+            BODY_FILE=$(mktemp)
+            echo "$ITEM" | jq -r '.body' > "$BODY_FILE"
+
+            gh label create "$LABEL" --color "ededed" --force >/dev/null 2>&1 || true
+
+            EXISTING=$(gh issue list --state open --search "\"$DISPATCH_ID\" in:body" --json number --jq 'length')
+            if [ "$EXISTING" = "0" ]; then
+              gh issue create --title "$TITLE" --label "$LABEL" --body-file "$BODY_FILE"
+            else
+              echo "已存在同一 dispatch-id 的開啟中 issue，略過：$DISPATCH_ID"
+            fi
+          done
