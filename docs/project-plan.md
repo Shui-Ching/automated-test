@@ -319,7 +319,7 @@ repo 已設為 public，Pages 直接可用：
 
 1. repo Settings → Pages，Source 選 GitHub Actions（或指定分支）
 2. 部署後網址為 `https://shui-ching.github.io/automated-test/`
-3. 前台入口 `/app/index.html`、後台登入 `/app/admin/login.html`
+3. 前台入口 `/`（即 `index.html`）、後台登入 `/admin/login.html`——`pages.yml` 的 `upload-pages-artifact` 是把 `app/` 資料夾本身當作網站根目錄上傳，網址不會再多一層 `/app/`
 
 **注意靜態站的路徑問題**：Pages 的專案站台掛在 `/automated-test/` 子路徑下，不是網域根目錄。頁面之間的連結與資源引用一律用相對路徑，不要寫 `/assets/...` 這種以斜線開頭的絕對路徑——本機開發時看起來正常，部署到 Pages 之後會全部 404。這個差異在本機測不出來，要用實際的 Pages 網址驗一次。
 
