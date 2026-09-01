@@ -187,15 +187,15 @@ session 已預先登記的版本，未變動）；`tests/contract/seed.md` 補�
 
 ---
 
-### Phase 4 — 自動派工機制完整化（狀態：未開始）
+### Phase 4 — 自動派工機制完整化（狀態：4.1～4.4 已完成，4.5 未開始）
 
 | # | 任務 | 產出 |
 | :-- | :--- | :--- |
-| 4.1 | 派工單格式定案：問題條列、重現步驟（直接取 AC 的 Given/When/Then）、失敗截圖、trace 連結 | Markdown 或 GitHub Issue |
-| 4.2 | 三類負責單位判定規則落地 | 見下表 |
-| 4.3 | 失敗自動開 GitHub Issue 並掛 label（`owner:frontend` 等） | Actions 跑完自動建立 |
-| 4.4 | 全量 60 條測試跑一輪，**與 PM 的人工結果做四格交叉比對**，算出假綠燈與假紅燈各幾條 | 產出可行性結論報告。判準：假綠燈 0 條才算真的可行；有假綠燈就要逐條查是哪種斷言寫法造成的 |
-| 4.5 | 把跑通的流程抽成可重用 skill（此時才做） | 需先呼叫 `skill-creator` |
+| 4.1 | 派工單格式定案：問題條列、重現步驟（直接取 AC 的 Given/When/Then）、失敗截圖、trace 連結 | **已完成**：`tests/reporters/dispatch-reporter.ts`（Phase 2.9 已建置，本次補上 trace 欄位與相對路徑，見下方說明）產出 `test-results/dispatch.md`，CI（`e2e.yml`）跑完自動上傳為 artifact |
+| 4.2 | 三類負責單位判定規則落地 | **已完成**：規則見下表，落地於 `tests/contract/ac-coverage.json` 與 `dispatch-reporter.ts` 的 `resolveUnit()`（Phase 2.9 已建置） |
+| 4.3 | 失敗自動開 GitHub Issue 並掛 label（`owner:frontend` 等） | **已完成（機制已寫好，尚未在真實 workflow_dispatch 執行中驗證過）**：`.github/scripts/parse-dispatch.js` 解析 `dispatch.md`、`.github/workflows/e2e.yml` 新增手動觸發（`workflow_dispatch`）才執行的建立 Issue 步驟，依 `dispatch-id` HTML 註解搭配 `gh issue list --search` 去重、`gh label create --force` 自動補標籤——**去重機制本身只在本機模擬過 JSON 產出，還沒有實際跑過 GitHub Actions 驗證 GitHub 搜尋索引是否真的能命中含中文與 `::` 的查詢字串，屬推測未驗證**。**僅手動觸發時才會真的建立 Issue**，push／PR 觸發不會自動開單，避免洗版 public repo |
+| 4.4 | 全量測試跑一輪，**與 PM 的人工結果做四格交叉比對**，算出假綠燈與假紅燈各幾條 | **已完成**：以刻意植入已知 bug 取代 PM 人工結果基準，涵蓋三類負責單位規則各 1 個真實 bug + 1 種契約漂移情境，過程中發現並修正 `contract-check.spec.ts` 未涵蓋 `block_testids` 的缺口。完整報告見 `docs/dispatch-feasibility-report.md`：已植入驗證的 8 條路徑假綠燈 0 條，假紅燈情境已修正並重新驗證通過；**方法上無法偵測完全沒有自動化測試覆蓋的 AC（例如 id 20、39），這兩筆是已知的永久假綠燈名額**，結論是抽樣結果，非窮舉 60 條 AC 的保證 |
+| 4.5 | 把跑通的流程抽成可重用 skill（此時才做） | 未開始，需先呼叫 `skill-creator` |
 
 **負責單位判定規則（依 AC 的 Then 敘述形態）：**
 

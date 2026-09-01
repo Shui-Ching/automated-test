@@ -31,5 +31,13 @@ for (const page of contract.pages) {
                 `${testid}（${description}）未出現在 ${page.url}`
             ).toHaveCount(1);
         }
+
+        // block_testids 是重複型 testid（每組圖文區塊各一份），數量隨種子資料而定，
+        // 契約檢查只確認「至少出現一次」，不比對確切數量。`note` 鍵是說明文字，不是 testid，跳過。
+        for (const [testid, description] of Object.entries(page.block_testids ?? {})) {
+            if (testid === 'note') continue;
+            const count = await browserPage.getByTestId(testid).count();
+            expect(count, `${testid}（${description}）未出現在 ${page.url}`).toBeGreaterThan(0);
+        }
     });
 }
