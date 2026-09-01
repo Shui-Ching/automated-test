@@ -37,11 +37,17 @@
                 <p class="pub-detail-note-body js-note" data-testid="pub-detail-note"></p>
             </div>
 
-            <footer class="pub-detail-footer">
+            <!-- 這一組是頁面之間的導覽，不是頁尾資訊，所以用 <nav> 不用 <footer>。
+                 註：原本擔心的「兩個 contentinfo landmark」實測不成立——ARIA in HTML 規定
+                 <footer> 只有在不屬於 article／aside／main／nav／section 的後代時才對映成
+                 contentinfo，這一組在 <main> 裡，量測結果整頁只有 1 個 contentinfo。
+                 改成 <nav> 的實際好處是它多了一個 navigation landmark，螢幕閱讀器可以直接
+                 跳到這組上下則連結；aria-label 要一起給，否則多個導覽區彼此分不出來。 -->
+            <nav class="pub-detail-footer" aria-label="頁面切換">
                 <a class="button button--secondary pub-detail-footer-prev js-prev" data-testid="pub-detail-prev" hidden></a>
                 <a class="button button--secondary pub-detail-footer-return" href="index.html" data-testid="pub-detail-return">返回列表</a>
                 <a class="button button--secondary pub-detail-footer-next js-next" data-testid="pub-detail-next" hidden></a>
-            </footer>
+            </nav>
         </main>
 
         <footer class="pub-site-footer">
