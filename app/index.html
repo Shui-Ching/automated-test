@@ -3,9 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>頁面管理功能模擬 — 前台頁面列表</title>
+    <title>頁面列表 — 頁面管理功能模擬</title>
+    <link rel="stylesheet" href="assets/css/main.css">
 </head>
 <body>
-    <p>Phase 0 環境驗證用的暫時頁面，Phase 3 會替換成前台頁面列表。</p>
+    <div class="pub-page">
+        <header class="pub-topbar">
+            <h1 class="pub-topbar-title">頁面列表</h1>
+        </header>
+
+        <main class="pub-list">
+            <div class="pub-list-table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>序號</th>
+                            <th>頁面名稱</th>
+                            <th>建立日期</th>
+                        </tr>
+                    </thead>
+                    <tbody class="js-table-body" data-testid="pub-list-body"></tbody>
+                </table>
+            </div>
+
+            <div class="pub-list-pagination">
+                <div class="pub-list-pagination-size">
+                    <label for="pub-list-page-size">每頁</label>
+                    <select class="field-input js-page-size" id="pub-list-page-size" data-testid="pub-list-page-size">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                    </select>
+                    <span>筆，共 <span class="js-total" data-testid="pub-list-total">0</span> 筆</span>
+                </div>
+
+                <div class="pub-list-pagination-nav">
+                    <button type="button" class="button button--secondary js-page-prev" data-testid="pub-list-page-prev">上一頁</button>
+                    <input
+                        class="field-input js-page-input"
+                        type="number"
+                        min="1"
+                        aria-label="跳至頁數"
+                        data-testid="pub-list-page-input">
+                    <span class="js-page-total" data-testid="pub-list-page-total">/ 1</span>
+                    <button type="button" class="button button--secondary js-page-next" data-testid="pub-list-page-next">下一頁</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="assets/js/pub-list.js"></script>
 </body>
 </html>

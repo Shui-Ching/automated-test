@@ -64,6 +64,22 @@ export function listPages(filters = {}) {
     });
 }
 
+/**
+ * 前台列表與內容頁共用的排序：建立日期由新至舊，同一建立日期時以主鍵（id）由大至小為次要排序
+ * （見 docs/pm-feedback.md A-1，2026-08-31 採方案 A 定案；SRS 對應調整見
+ * `[PAG-ADM-FN-002]` 欄位定義表新增之主鍵定義、`[PUB-WEB-FN-001]` 排序定義）。
+ * 已硬刪除之頁面本來就不在 `readAll()` 回傳的陣列裡，AC-B1 類的「已刪除頁面不得出現」
+ * 因此不需要另外過濾。
+ */
+export function listPublicPages() {
+    return readAll()
+        .slice()
+        .sort((a, b) => {
+            if (a.createdDate !== b.createdDate) return a.createdDate < b.createdDate ? 1 : -1;
+            return a.id < b.id ? 1 : -1;
+        });
+}
+
 /** 硬刪除：直接從陣列移除，不保留任何軌跡。回傳是否有實際刪到資料。 */
 export function deletePage(id) {
     const pages = readAll();

@@ -133,6 +133,55 @@
         "page-form-block-caption": "圖說文字輸入框",
         "page-form-block-caption-error": "圖說文字錯誤訊息。無錯誤時 hidden"
       }
+    },
+    {
+      "id": "pub-list",
+      "url": "/index.html",
+      "spec": "[PUB-WEB-FN-001] 前台 前台頁面列表",
+      "note": "免登入頁面（NFR-003），不需 seedAdmin 帶入 session，但仍可用 seedAdmin(page, []) 寫入 admin-pages 這把前後台共用的資料 key（會多寫一筆不影響前台的 admin-session，前台不讀取）。無資料時落入查無資料狀態，`pub-list-empty` 因此保證存在。",
+      "testids": {
+        "pub-list-body": "表格 tbody，資料列與查無資料列都渲染在這底下",
+        "pub-list-empty": "查無資料列（渲染於 tbody 內的單一 td，非獨立元素）",
+        "pub-list-total": "總筆數",
+        "pub-list-page-size": "每頁筆數選擇（10／20／50）",
+        "pub-list-page-prev": "上一頁按鈕",
+        "pub-list-page-next": "下一頁按鈕",
+        "pub-list-page-input": "跳頁輸入框",
+        "pub-list-page-total": "總頁數顯示"
+      },
+      "row_testids": {
+        "note": "以下 testid 只在有資料列渲染時才存在，故意不放進上面的靜態契約。用 data-page-name 鎖定特定列，例如 page.getByTestId('pub-row').filter({ has: page.locator('[data-page-name=\"品牌故事\"]') })。",
+        "pub-row": "資料列本身，帶 data-page-name 屬性",
+        "pub-list-row-link": "列內頁面名稱連結，連到 pub-detail.html?id=..."
+      }
+    },
+    {
+      "id": "pub-detail",
+      "url": "/pub-detail.html?id=contract-check-pub-page",
+      "spec": "[PUB-WEB-FN-002] 前台 頁面內容顯示",
+      "note": "免登入頁面（NFR-003）。與 page-edit 同理，本頁需要 `?id=` 對應到一筆存在的資料才不會被異常流程 1（資料不存在或已被刪除）導回列表，因此網址固定帶一個假 id、`seed` 欄位帶一筆同 id 的種子資料。`pub-detail-block-image`／`pub-detail-block-caption`／`pub-detail-content-section`／`pub-detail-note-section`／`pub-detail-prev`／`pub-detail-next` 皆為條件式渲染或條件式 hidden，見對應功能測試的實際情境，此處只保證固定存在的殼層元素。",
+      "seed": [
+        { "id": "contract-check-pub-page", "name": "契約檢查用前台頁面", "createdDate": "2026-01-01", "blocks": [{ "layout": "image-left", "image": "img-contract-check", "caption": "契約檢查用圖說" }], "content": "<p>契約檢查用內容</p>", "note": "契約檢查用補充說明" }
+      ],
+      "testids": {
+        "pub-detail-toast": "異常提示 Toast（資料不存在或已被刪除）。無訊息時 hidden",
+        "pub-detail-name": "頁面名稱（主標題）",
+        "pub-detail-date": "建立日期",
+        "pub-detail-blocks": "圖文區塊清單容器，各組 pub-detail-block 依序渲染於其下",
+        "pub-detail-content-section": "內容區塊外層容器，頁面內容為空時整區塊 hidden",
+        "pub-detail-content": "頁面內容渲染結果（已消毒之 HTML，見 html-sanitize.js）",
+        "pub-detail-note-section": "補充說明外層容器，補充說明為空時整區塊 hidden",
+        "pub-detail-note": "補充說明內容",
+        "pub-detail-prev": "上一則連結，顯示文字為相鄰前一筆之頁面名稱，本筆為排序中第一筆時 hidden",
+        "pub-detail-return": "返回列表連結，連到 index.html",
+        "pub-detail-next": "下一則連結，顯示文字為相鄰後一筆之頁面名稱，本筆為排序中最後一筆時 hidden"
+      },
+      "block_testids": {
+        "note": "以下 testid 每組圖文區塊各有一份（重複），排列順序即畫面順序，用 page.getByTestId('pub-detail-block').nth(i) 鎖定第 i 組。版型左圖右文／右圖左文不能只驗 class 是否存在，要量測 pub-detail-block-image／pub-detail-block-caption 的 boundingBox 相對位置，見 tests/contract/assertion-types.md 第 4 節。",
+        "pub-detail-block": "單組圖文區塊容器，帶 modifier class pub-block--image-left／pub-block--image-right",
+        "pub-detail-block-image": "區塊圖片，找不到對應 Blob 時 hidden",
+        "pub-detail-block-caption": "圖說文字，無資料時為空字串（不顯示替代文字）"
+      }
     }
   ]
 }

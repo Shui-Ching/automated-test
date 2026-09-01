@@ -106,6 +106,13 @@ IndexedDB（跟使用者操作走的是同一條路徑，沒有時序問題）�
 的測試，繼續用 `seedAdmin` 的假 `image` key，因為編輯頁的必填檢核只看這個 key
 是否為真值，不要求 Blob 真的存在。
 
+## 前台頁面（Phase 3）沿用同一套 seedAdmin
+
+`app/index.html`（前台列表）與 `app/pub-detail.html`（前台內頁）都是免登入頁面（NFR-003），
+讀的仍是 `admin-pages` 這把同一把 key，所以測試照樣呼叫 `seedAdmin(page, [...])` 寫入資料即可，
+不需要另外做一套「seedPublic」。`seedAdmin` 同時寫入的 `admin-session` 前台完全不讀，
+多寫這筆對前台測試無副作用。
+
 ## 登入狀態一併帶入
 
 後台頁面一律被 `auth-guard.js` 擋，`seedAdmin` 會同時寫入 `admin-session`

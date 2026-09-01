@@ -156,20 +156,34 @@ project-plan.md          ← 本檔
 
 ---
 
-### Phase 3 — 前台展示（狀態：未開始）
+### Phase 3 — 前台展示（狀態：**已完成**，2026-08-31）
 
-| # | 任務 | 對應 AC |
-| :-- | :--- | :--- |
-| 3.1 | 前台列表：全量顯示、排序（建立日期新→舊，同日以新增順序新→舊）、分頁、查無資料 | PUB-001 全部 4 條 |
-| 3.2 | 前台內頁：多組區塊依序渲染、左右版型各組獨立 | PUB-002 AC-P1～P3 |
-| 3.3 | HTML 內容渲染（**必須做消毒，見風險 R-3**）、選填欄位空值整區隱藏 | PUB-002 AC-P4、P10 |
-| 3.4 | 上一則／下一則導覽（含首末筆隱藏、單筆全隱藏） | PUB-002 AC-P5～P9 |
-| 3.5 | 已刪除頁面的存取處理 | PUB-002 AC-B1、PUB-001 AC-B1 |
-| 3.6 | 對應的 Playwright 測試（15 條），**負向斷言一律配對正向基準**（見風險 R-7） | — |
+本階段由 PM 端 AI 一併代寫前端（原分工是「PM 開規格 → 使用者做前端畫面 → PM 寫測試」，
+Phase 3 啟動時前台頁面尚未有任何前端程式碼，經詢問後改為本次由 AI 代寫，見對話紀錄）。
 
-- **時間**：4～6 小時
-- **Token**：約 1.5 個視窗
-- **可否單 session 完成**：勉強，建議拆 2 個 session
+啟動前先處理兩個卡點：
+1. **`docs/pm-feedback.md` A-1（同建立日期次要排序沒有可用欄位）**：詢問後採方案 A 定案——
+   在 `[PAG-ADM-FN-002]` 欄位定義表補列「主鍵」欄位定義，`[PUB-WEB-FN-001]`〈預設排序定義〉
+   改為「同一建立日期時，以主鍵由大至小為次要排序」。對應實作：`data-store.js` 新增
+   `listPublicPages()`，排序邏輯獨立於 `listPages()`（後台列表）之外，不影響既有 51 條測試。
+2. **風險 R-3（HTML 原樣渲染的 XSS 缺口）**：實作白名單消毒 `app/assets/js/html-sanitize.js`，
+   允許標籤對齊編輯器工具列（`p`、`br`、`b`、`strong`、`i`、`em`、`ul`、`ol`、`li`、`a`、`img`），
+   移除其餘標籤外層（保留文字）、危險標籤（`script`／`style`／`iframe`／`object`／`embed`）連內容
+   一併移除，並清掉 `on*` 事件屬性與 `javascript:` 開頭的連結／圖片來源。
+
+| # | 任務 | 對應 AC | 完成狀態 |
+| :-- | :--- | :--- | :--- |
+| 3.1 | 前台列表：全量顯示、排序（建立日期新→舊，同日以主鍵大→小）、分頁、查無資料 | PUB-001 全部 4 條 | **已完成**：`app/index.html`／`app/assets/js/pub-list.js`，沿用 `page-list.js` 分頁邏輯，無搜尋（規格特殊規則 1），免登入（NFR-003） |
+| 3.2 | 前台內頁：多組區塊依序渲染、左右版型各組獨立 | PUB-002 AC-P1～P3 | **已完成**：`app/pub-detail.html`／`app/assets/js/pub-detail.js`，版型用 flex `row`／`row-reverse` 反映幾何位置，測試用 `boundingBox()` 量測而非只驗 class（見 R-7） |
+| 3.3 | HTML 內容渲染（**必須做消毒，見風險 R-3**）、選填欄位空值整區隱藏 | PUB-002 AC-P4、P10 | **已完成**：見上方 R-3 處理方式；內容與補充說明皆為空時整區塊 `hidden` |
+| 3.4 | 上一則／下一則導覽（含首末筆隱藏、單筆全隱藏） | PUB-002 AC-P5～P9 | **已完成**：`listPublicPages()` 找出相鄰筆，用 `<a href>` 導頁（語意為導航而非動作），首末筆與單筆資料時對應元件 `hidden` |
+| 3.5 | 已刪除頁面的存取處理 | PUB-002 AC-B1、PUB-001 AC-B1 | **已完成**：硬刪除後的頁面本來就不在 `readAll()` 回傳陣列裡，前台列表與內頁的「不得出現／導回列表並提示」不需要另外過濾邏輯 |
+| 3.6 | 對應的 Playwright 測試（15 條），**負向斷言一律配對正向基準**（見風險 R-7） | — | **已完成**：`tests/specs/pub-web-fn-001.spec.ts`（4 條）、`tests/specs/pub-web-fn-002.spec.ts`（11 條），版型類 AC 以刻意植入 bug（`pub-block--${block.layout}` 改成寫死 `image-left`）驗證會轉紅並掛「需人工設計審查」，還原後全專案 68 條測試（含 Phase 0～2）全綠 |
+
+**契約新增**：`tests/contract/testid-map.json` 補上 `pub-list`、`pub-detail` 兩個頁面條目；
+`tests/contract/ac-coverage.json` id 46～60 補齊 `test_file`／`test_title`（單位分類沿用先前
+session 已預先登記的版本，未變動）；`tests/contract/seed.md` 補一節說明前台頁面沿用同一套
+`seedAdmin()`，不需另建 `seedPublic`。
 
 ---
 

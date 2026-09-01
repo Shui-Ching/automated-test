@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>頁面內容 — 頁面管理功能模擬</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+    <div class="pub-page">
+        <main class="pub-detail">
+            <p class="toast js-toast" role="status" data-testid="pub-detail-toast" hidden></p>
+
+            <header class="pub-detail-header">
+                <h1 class="pub-detail-title js-name" data-testid="pub-detail-name"></h1>
+                <p class="pub-detail-date js-date" data-testid="pub-detail-date"></p>
+            </header>
+
+            <div class="pub-detail-blocks js-blocks" data-testid="pub-detail-blocks"></div>
+
+            <div class="pub-detail-content js-content-section" data-testid="pub-detail-content-section" hidden>
+                <div class="pub-detail-content-body js-content" data-testid="pub-detail-content"></div>
+            </div>
+
+            <div class="pub-detail-note js-note-section" data-testid="pub-detail-note-section" hidden>
+                <p class="pub-detail-note-body js-note" data-testid="pub-detail-note"></p>
+            </div>
+
+            <footer class="pub-detail-footer">
+                <a class="button button--secondary pub-detail-footer-prev js-prev" data-testid="pub-detail-prev" hidden></a>
+                <a class="button button--secondary pub-detail-footer-return" href="index.html" data-testid="pub-detail-return">返回列表</a>
+                <a class="button button--secondary pub-detail-footer-next js-next" data-testid="pub-detail-next" hidden></a>
+            </footer>
+        </main>
+    </div>
+
+    <script type="module" src="assets/js/pub-detail.js"></script>
+</body>
+</html>
