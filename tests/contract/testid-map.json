@@ -21,7 +21,7 @@
       "spec": "[PAG-ADM-FN-001] 後台 頁面列表",
       "note": "本頁需要有效登入狀態（auth-guard.js 阻擋），契約檢查與功能測試都要先用 tests/support/seed.ts 的 seedAdmin() 建立 session，見 tests/contract/seed.md。列表在無資料時會落入查無資料狀態，這也是契約檢查的實際載入狀態，`page-list-empty` 因此保證存在。",
       "testids": {
-        "admin-nav-page-list": "左側選單「頁面列表」，連到 page-list.html。目前所在頁帶 aria-current=\"page\"",
+        "admin-nav-page-list": "左側選單「頁面管理」，連到 page-list.html。目前所在頁帶 aria-current=\"page\"",
         "admin-nav-page-create": "左側選單「新增頁面」，連到 page-create.html。目前所在頁帶 aria-current=\"page\"",
         "page-list-logout": "登出按鈕",
         "page-list-search-name": "頁面名稱搜尋輸入框",
@@ -57,7 +57,7 @@
       "spec": "[PAG-ADM-FN-002] 後台 新增頁面",
       "note": "testid 前綴用 page-form-*，不用 page-create-*：新增／編輯頁面（PAG-002／003）共用同一套欄位，這份契約日後 page-edit.html 會直接沿用同一批 testid，改名等同兩邊一起改。本頁需要有效登入狀態，seedAdmin() 用法同 page-list。頁面內容編輯器是 Quill（CDN 引入），工具列由本頁自訂容器（#page-form-content-toolbar）承載，testid 定位工具列按鈕；但實際輸入文字要對內容區塊的 `.ql-editor`（Quill 內部產生的 contenteditable 子元素）操作，`page-form-content-editor` 這個 testid 掛在外層容器（Quill 稱為 .ql-container），點擊/輸入請用 page.getByTestId('page-form-content-editor').locator('.ql-editor')。",
       "testids": {
-        "admin-nav-page-list": "左側選單「頁面列表」，連到 page-list.html。目前所在頁帶 aria-current=\"page\"",
+        "admin-nav-page-list": "左側選單「頁面管理」，連到 page-list.html。目前所在頁帶 aria-current=\"page\"",
         "admin-nav-page-create": "左側選單「新增頁面」，連到 page-create.html。目前所在頁帶 aria-current=\"page\"",
         "page-form-logout": "登出按鈕",
         "page-form-toast": "成功提示 Toast。無訊息時 hidden",
@@ -114,7 +114,7 @@
         }
       ],
       "testids": {
-        "admin-nav-page-list": "左側選單「頁面列表」，連到 page-list.html。目前所在頁帶 aria-current=\"page\"",
+        "admin-nav-page-list": "左側選單「頁面管理」，連到 page-list.html。目前所在頁帶 aria-current=\"page\"",
         "admin-nav-page-create": "左側選單「新增頁面」，連到 page-create.html。目前所在頁帶 aria-current=\"page\"",
         "page-form-logout": "登出按鈕",
         "page-form-toast": "成功提示 Toast。無訊息時 hidden",
