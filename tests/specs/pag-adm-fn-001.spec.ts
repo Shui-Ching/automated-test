@@ -98,3 +98,60 @@ test('[PAG-ADM-FN-001] AC-B1 建立日期起始晚於結束', async ({ page }) =
     await expect(page.getByTestId('page-list-total')).toHaveText('1');
     await expect(page.getByTestId('page-row')).toHaveCount(1);
 });
+
+test('[PAG-ADM-FN-001] AC-P6 同一建立日期依建檔時序排序（與前台一致）', async ({ page }) => {
+    await seedAdmin(page, []);
+    await page.goto('/admin/page-list.html');
+
+    // buildSeq（建檔時序）由 createPage() 寫入時才產生，seedAdmin 填不出這個欄位，
+    // 改用動態 import 呼叫真正的 data-store.js（見 tests/contract/seed.md「buildSeq」一節）。
+    // 排序基準須與 [PUB-WEB-FN-001] 完全一致：後建立的「乙頁面」應排在較前面。
+    await page.evaluate(async () => {
+        const { createPage } = await import('/assets/js/data-store.js');
+        createPage({ name: '甲頁面', createdDate: '2026-04-01', blocks: [{}] });
+        createPage({ name: '乙頁面', createdDate: '2026-04-01', blocks: [{}] });
+    });
+    await page.reload();
+
+    const rows = page.getByTestId('page-row');
+    await expect(rows).toHaveCount(2);
+    await expect(rows.nth(0)).toHaveAttribute('data-page-name', '乙頁面');
+    await expect(rows.nth(1)).toHaveAttribute('data-page-name', '甲頁面');
+});
+
+test('[PAG-ADM-FN-001] EX-1 刪除目標於作業期間已不存在', async ({ page }) => {
+    await seedAdmin(page, [{ id: 'p1', name: '測試頁面 A', createdDate: '2026-01-10', blocks: [{}] }]);
+    await page.goto('/admin/page-list.html');
+
+    await page.getByTestId('page-list-row-delete').click();
+    await expect(page.getByTestId('page-list-delete-dialog')).toBeVisible();
+
+    // 模擬另一個瀏覽器分頁已搶先完成刪除：彈窗開著的當下，資料已經不在了。
+    await page.evaluate(() => {
+        localStorage.setItem('admin-pages', '[]');
+    });
+
+    await page.getByTestId('page-list-delete-confirm').click();
+
+    await expect(page.getByTestId('page-list-toast')).toHaveText('資料不存在或已被刪除');
+    await expect(page.getByTestId('page-list-delete-dialog')).toBeHidden();
+    await expect(page.getByTestId('page-list-total')).toHaveText('0');
+});
+
+test('[PAG-ADM-FN-001] NFR-004 資料寫入失敗時中止刪除並提示、列表維持原狀', async ({ page }) => {
+    // 寫入本來不會自己失敗，用 ?forceWriteFailure=1 注入（見 data-store.js writeAll() 的說明）。
+    await seedAdmin(page, [{ id: 'p1', name: '測試頁面 A', createdDate: '2026-01-10', blocks: [{}] }]);
+    await page.goto('/admin/page-list.html?forceWriteFailure=1');
+
+    await page.getByTestId('page-list-row-delete').click();
+    await page.getByTestId('page-list-delete-confirm').click();
+
+    await expect(page.getByTestId('page-list-toast')).toHaveText('系統忙碌中，請稍後再試');
+    await expect(page.getByTestId('page-list-delete-dialog')).toBeHidden();
+    // 該筆資料仍存在且總筆數不變。
+    await expect(page.getByTestId('page-list-total')).toHaveText('1');
+    await expect(page.getByTestId('page-row')).toHaveCount(1);
+
+    const pages = await page.evaluate(() => JSON.parse(localStorage.getItem('admin-pages') || '[]'));
+    expect(pages).toHaveLength(1);
+});

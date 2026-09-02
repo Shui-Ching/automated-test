@@ -6,10 +6,10 @@ import { test, expect } from '@playwright/test';
  * 對應規格：srs/04_功能規劃/4.1_內容管理/4.1.1_AUT_後台登入/[AUT-ADM-FN-001] 後台 後台登入.md
  * 依契約 tests/contract/testid-map.json 的 login 頁面選擇器撰寫，不自行發明選擇器。
  *
- * AC-P1 的「畫面上可見『頁面管理』功能入口」目前無法驗證：page-list.html 是 Phase 1 的空殼頁，
- * 尚未實作任何功能入口（見 app/admin/page-list.html 的說明文字）。本測試改以驗證登入狀態
- * 確實建立（window.AdminSession.check() === 'active'）與導頁成功，功能入口的斷言待 Phase 2
- * page-list.html 實作後補上。
+ * v1.2 SRS 已將 AC-P1 的斷言由「畫面上可見『頁面管理』功能入口」改寫為「畫面呈現該頁之
+ * 搜尋區、資料列表與後台共用框架」，本測試依新文案驗證：登入狀態建立
+ * （window.AdminSession.check() === 'active'）、導頁成功，並且頁面列表的搜尋區、
+ * 資料列表容器與共用框架（選單、登出）確實存在於畫面上。
  */
 
 test('[AUT-ADM-FN-001] AC-P1 成功登入後台', async ({ page }) => {
@@ -24,6 +24,12 @@ test('[AUT-ADM-FN-001] AC-P1 成功登入後台', async ({ page }) => {
     // 用 waitForFunction 而非 evaluate + expect.poll：導頁瞬間 execution context 會被銷毀重建，
     // evaluate 撞上這個瞬間會直接丟錯而不會重試，waitForFunction 才是為這種情境設計的等待方式。
     await page.waitForFunction(() => window.AdminSession && window.AdminSession.check() === 'active');
+
+    // 搜尋區、資料列表與後台共用框架（選單、登出）均已呈現。
+    await expect(page.getByTestId('page-list-search-name')).toBeVisible();
+    await expect(page.getByTestId('page-list-body')).toBeVisible();
+    await expect(page.getByTestId('admin-nav-page-list')).toBeVisible();
+    await expect(page.getByTestId('page-list-logout')).toBeVisible();
 });
 
 test('[AUT-ADM-FN-001] AC-B1 欄位驗證：帳號未填', async ({ page }) => {

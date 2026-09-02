@@ -8,9 +8,11 @@ import { seedAdmin } from '../support/seed';
  * 依契約 tests/contract/testid-map.json 的 pub-list 頁面選擇器撰寫，資料透過
  * tests/support/seed.ts 的 seedAdmin() 填種，寫法見 tests/contract/seed.md「前台頁面沿用同一套 seedAdmin」一節。
  *
- * AC-P1 的次要排序依 docs/pm-feedback.md A-1（2026-08-31 採方案 A 定案）：
- * 同一建立日期時以主鍵（id）由大至小排序，本測試刻意讓 id 遞增順序與預期顯示順序一致，
- * 用來同時驗證主鍵次要排序有生效（而不是巧合符合建立日期排序）。
+ * AC-P1 三筆種子資料的 createdDate 互不相同，只驗證主要排序（建立日期新至舊），
+ * 不涉及次要排序。同一 createdDate 時的次要排序（依「建檔時序」由新至舊，見
+ * `[PAG-ADM-FN-002]` 特殊規則 4／`data-store.js` 的 `compareBuildOrder`）由 AC-P4 驗證：
+ * `buildSeq` 是 `createPage()` 寫入時才產生的值，`seedAdmin` 填種的資料沒有這個欄位，
+ * 所以 AC-P4 改用動態 import 呼叫真正的 `createPage()`，而不是直接塞種子資料。
  */
 
 test('[PUB-WEB-FN-001] AC-P1 依建立日期由新至舊顯示', async ({ page }) => {
@@ -47,6 +49,27 @@ test('[PUB-WEB-FN-001] AC-P3 無資料時顯示查無資料', async ({ page }) =
 
     await expect(page.getByTestId('pub-list-empty')).toBeVisible();
     await expect(page.getByTestId('pub-list-total')).toHaveText('0');
+});
+
+test('[PUB-WEB-FN-001] AC-P4 同一建立日期依建檔時序排序', async ({ page }) => {
+    await seedAdmin(page, []);
+    await page.goto('/index.html');
+
+    // buildSeq（建檔時序）由 createPage() 寫入時才產生，seedAdmin 填不出這個欄位，
+    // 改用動態 import 呼叫真正的 data-store.js，跟應用程式本身走同一條寫入路徑
+    // （見 tests/contract/seed.md「buildSeq」一節）。先建立的「甲頁面」buildSeq 較小，
+    // 後建立的「乙頁面」buildSeq 較大，同一 createdDate 時應排在較新（乙頁面）在前。
+    await page.evaluate(async () => {
+        const { createPage } = await import('/assets/js/data-store.js');
+        createPage({ name: '甲頁面', createdDate: '2026-04-01', blocks: [{}] });
+        createPage({ name: '乙頁面', createdDate: '2026-04-01', blocks: [{}] });
+    });
+    await page.reload();
+
+    const rows = page.getByTestId('pub-row');
+    await expect(rows).toHaveCount(2);
+    await expect(rows.nth(0)).toHaveAttribute('data-page-name', '乙頁面');
+    await expect(rows.nth(1)).toHaveAttribute('data-page-name', '甲頁面');
 });
 
 test('[PUB-WEB-FN-001] AC-B1 已刪除頁面不得出現於前台', async ({ page }) => {
