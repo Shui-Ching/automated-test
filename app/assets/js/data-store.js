@@ -55,9 +55,22 @@ function writeAll(pages) {
 }
 
 /**
- * 依關鍵字（模糊比對）與建立日期區間篩選，並依建立日期新至舊排序。
- * Array.prototype.sort 是穩定排序（ES2019+ 規範保證），同日期的資料維持原陣列順序，
- * 不額外發明「同日以新增順序」這類規格沒寫的次要排序規則。
+ * 建立日期相同時的次要排序鍵。優先比較 `buildSeq`（見 `createPage` 下方說明）；
+ * 舊資料或測試 seed（見 tests/contract/seed.md）沒有這個欄位時，退回以 `id` 比較——
+ * `id` 由 `generateId()` 內嵌 `Date.now()`，同樣具備「越晚建立值越大」的特性，
+ * 兩者都是由大到小視為越晚建立。
+ */
+function compareBuildOrder(a, b) {
+    if (typeof a.buildSeq === 'number' && typeof b.buildSeq === 'number') {
+        return a.buildSeq < b.buildSeq ? 1 : a.buildSeq > b.buildSeq ? -1 : 0;
+    }
+    return a.id < b.id ? 1 : a.id > b.id ? -1 : 0;
+}
+
+/**
+ * 依關鍵字（模糊比對）與建立日期區間篩選，並依建立日期新至舊排序；同一建立日期時
+ * 依建檔時序（`compareBuildOrder`）由新至舊為次要排序，排序基準須與 `listPublicPages()`
+ * 完全一致（見 `[PAG-ADM-FN-001]`〈預設排序定義〉）。
  */
 export function listPages(filters = {}) {
     const name = (filters.name || '').trim();
@@ -77,16 +90,14 @@ export function listPages(filters = {}) {
     }
 
     return pages.slice().sort((a, b) => {
-        if (a.createdDate < b.createdDate) return 1;
-        if (a.createdDate > b.createdDate) return -1;
-        return 0;
+        if (a.createdDate !== b.createdDate) return a.createdDate < b.createdDate ? 1 : -1;
+        return compareBuildOrder(a, b);
     });
 }
 
 /**
- * 前台列表與內容頁共用的排序：建立日期由新至舊，同一建立日期時以主鍵（id）由大至小為次要排序
- * （見 docs/pm-feedback.md A-1，2026-08-31 採方案 A 定案；SRS 對應調整見
- * `[PAG-ADM-FN-002]` 欄位定義表新增之主鍵定義、`[PUB-WEB-FN-001]` 排序定義）。
+ * 前台列表與內容頁共用的排序：建立日期由新至舊，同一建立日期時依建檔時序由新至舊為
+ * 次要排序（`compareBuildOrder`），與 `listPages()` 完全一致（見 `[PUB-WEB-FN-001]`〈預設排序定義〉）。
  * 已硬刪除之頁面本來就不在 `readAll()` 回傳的陣列裡，AC-B1 類的「已刪除頁面不得出現」
  * 因此不需要另外過濾。
  */
@@ -95,7 +106,7 @@ export function listPublicPages() {
         .slice()
         .sort((a, b) => {
             if (a.createdDate !== b.createdDate) return a.createdDate < b.createdDate ? 1 : -1;
-            return a.id < b.id ? 1 : -1;
+            return compareBuildOrder(a, b);
         });
 }
 
@@ -112,6 +123,15 @@ export function pageNameExists(name, excludeId = null) {
     return readAll().some((page) => page.name === name && page.id !== excludeId);
 }
 
+/**
+ * 「建檔時序」：不對使用者顯示，寫入後不因編輯而變更，僅作為建立日期相同時的次要
+ * 排序依據（`[PAG-ADM-FN-002]`〈特殊規則〉4）。取現存資料中最大值 +1，而非直接用
+ * `Date.now()`，避免測試等場景短時間內連續新增多筆時發生毫秒級數值碰撞。
+ */
+function nextBuildSeq(pages) {
+    return pages.reduce((max, page) => Math.max(max, page.buildSeq || 0), 0) + 1;
+}
+
 /** 新增一筆頁面資料。呼叫前應已完成欄位驗證與唯一值檢核，本函式不重複檢查。 */
 export function createPage({ name, createdDate, blocks, content, note }) {
     const pages = readAll();
@@ -119,6 +139,7 @@ export function createPage({ name, createdDate, blocks, content, note }) {
         id: generateId('p'),
         name,
         createdDate,
+        buildSeq: nextBuildSeq(pages),
         blocks,
         content: content || '',
         note: note || '',

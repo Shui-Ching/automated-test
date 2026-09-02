@@ -69,9 +69,10 @@ Phase 3 加前台頁面用的種子資料）多塞一筆進去，就會讓這幾
 
 | 欄位 | 型態 | 目前誰在讀 |
 | :--- | :--- | :--- |
-| `id` | string，測試裡隨便給穩定字串即可（`p1`、`p2`），不必是真的 UUID | 刪除、編輯連結的 `?id=` |
+| `id` | string，測試裡隨便給穩定字串即可（`p1`、`p2`），不必是真的 UUID | 刪除、編輯連結的 `?id=`；同時作為 `buildSeq` 缺值時的次要排序 fallback（見下） |
 | `name` | string | 列表顯示、名稱模糊搜尋、`data-page-name` |
 | `createdDate` | `YYYY-MM-DD` 字串 | 排序、日期區間篩選、列表顯示 |
+| `buildSeq` | number，選填 | 「建檔時序」，`createPage()` 寫入時自動產生，不對使用者顯示，作為 `createdDate` 相同時的次要排序依據（`[PAG-ADM-FN-002]` 特殊規則 4）。`seedAdmin` 填種的資料通常不必帶這個欄位——`data-store.js` 的排序比較式在缺值時會退回比較 `id`（由大至小），所以既有測試只要維持不同 `createdDate` 或用穩定遞增的 `id` 命名，排序結果不受影響。若要測試「同一 `createdDate` 時依建檔時序排序」這類 AC，需透過 UI 或動態 `import('/assets/js/data-store.js')` 呼叫真正的 `createPage()`，讓 `buildSeq` 由程式產生，直接塞固定數字沒有意義 |
 | `blocks` | 陣列，本階段（頁面列表）只讀 `.length`（列表的「# 組」欄） | 見下方 `blocks[]` 欄位表 |
 | `content` | string，HTML | 尚無頁面讀取（前台渲染待 Phase 3） |
 | `note` | string，選填 | 尚無頁面讀取 |
