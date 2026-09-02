@@ -4,8 +4,16 @@ import { showToast } from './toast.js';
 const MESSAGES = {
     dateRangeInvalid: '結束時間不可早於開始時間',
     deleteSuccess: '刪除成功',
+    // [PAG-ADM-FN-001] 異常流程 2：刪除目標於作業期間已不存在（EX-1，同一筆被其他分頁搶先刪除）
+    deleteNotFound: '資料不存在或已被刪除',
+    // 文案取自 NFR-004（見 docs/project-plan.md 風險 R-8／R-9）
+    writeFailure: '系統忙碌中，請稍後再試',
     logoutSuccess: '已登出',
 };
+
+function isQuotaExceededError(error) {
+    return error instanceof DOMException && (error.name === 'QuotaExceededError' || error.code === 22);
+}
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50];
 
@@ -224,12 +232,26 @@ deleteConfirmButton.addEventListener('click', () => {
     if (!pendingDeleteId) return;
 
     deleteConfirmButton.disabled = true;
-    deletePage(pendingDeleteId);
-    deleteDialog.close();
-    deleteConfirmButton.disabled = false;
 
-    refreshList();
-    showToast(toastEl, MESSAGES.deleteSuccess);
+    try {
+        // deletePage() 回傳布林值：true 表示真的刪到資料，false 表示該筆已不存在
+        // （EX-1：同一筆於另一分頁已被搶先刪除，異常流程 2）。
+        const deleted = deletePage(pendingDeleteId);
+        deleteDialog.close();
+        refreshList();
+        showToast(toastEl, deleted ? MESSAGES.deleteSuccess : MESSAGES.deleteNotFound);
+    } catch (error) {
+        // NFR-004：寫入失敗時中止本次刪除，關閉彈窗後列表維持原狀，該筆資料仍存在
+        // 且總筆數不變——因此不呼叫 refreshList()。
+        deleteDialog.close();
+        if (isQuotaExceededError(error)) {
+            showToast(toastEl, MESSAGES.writeFailure);
+        } else {
+            throw error;
+        }
+    } finally {
+        deleteConfirmButton.disabled = false;
+    }
 });
 
 logoutButton.addEventListener('click', () => {
